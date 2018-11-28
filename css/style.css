@@ -61,13 +61,15 @@ body {
 .right {
   display: grid;
   grid-area: right;
+  position: relative;
 }
 
 .right iframe {
   position: relative;
   top: 50%;
   right: 0;
-  transform: translateY(50%,-50%);
+  transform: translateY(-50%);
+  -webkit-transform: translateY(50%,-50%);
   height: var(--middle-height);
   width: calc(100vw/4);
 }
