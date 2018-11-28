@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: rgb(44, 44, 44);
+  grid-template-columns: repeat(4, 1f);
+  grid-template-areas:
+  "top top top top"
+  "left middle middle right"
+  "bottom bottom bottom bottom"
+}
+
+.top {
+  grid-area: top;
+  width: 10vw;
+  height: 10vh;
+}
+
+.left {
+  grid-area: left;
+}
+
+.middle {
+  grid-area: middle;
+}
+
+.right {
+  grid-area: right;
+}
+
+.right iframe {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 15px;
+  height: 75vh;
+  width: calc(100vw/4);
+}
+
+.bottom {
+  grid-area: bottom;
+  position: absolute;
+  bottom: 0;
+  height: 5vh;
+  width: 100vw;
+  color: white;
+  background: rgb(42, 42, 247);
+}
+
