@@ -1,3 +1,9 @@
+:root {
+  --top-height: 8vh;
+  --middle-height: calc(100vh - var(--top-height) - var(--bottom-height));
+  --bottom-height: 5vh;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,24 +16,50 @@ body {
   grid-template-areas:
   "top top top top"
   "left middle middle right"
-  "bottom bottom bottom bottom"
+  "bottom bottom bottom bottom";
 }
 
 .top {
+  display: grid;
+  font-weight: bold;
+  justify-items: center;
+  align-items: center;
   grid-area: top;
-  width: 10vw;
-  height: 10vh;
+  grid-template-columns: 60px auto auto auto;
+  grid-template-areas:
+  "userLogo streamTitle streamTitle streamGame";
+  height: var(--top-height);
+  color: white;
+  background: rgb(20, 20, 20);
+}
+
+.userLogo {
+  grid-area: userLogo;
+}
+
+.streamTitle {
+  display: grid;
+  grid-area: streamTitle;
+}
+
+.streamGame {
+  display: grid;
+  grid-area: streamGame;
 }
 
 .left {
+  display: grid;
   grid-area: left;
 }
 
 .middle {
+  display: grid;
   grid-area: middle;
+  z-index: -1;
 }
 
 .right {
+  display: grid;
   grid-area: right;
 }
 
@@ -35,18 +67,20 @@ body {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
-  right: 15px;
-  height: 75vh;
+  height: var(--middle-height);
   width: calc(100vw/4);
 }
 
 .bottom {
+  display: grid;
   grid-area: bottom;
-  position: absolute;
-  bottom: 0;
-  height: 5vh;
-  width: 100vw;
+  font-weight: bold;
+  justify-items: center;
+  align-items: center;
+  height: var(--bottom-height);
   color: white;
   background: rgb(42, 42, 247);
+  grid-template-columns: auto auto auto auto;
+  grid-template-areas:
+  "1 2 3 4";
 }
-
