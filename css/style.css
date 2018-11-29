@@ -39,6 +39,11 @@ body {
   grid-area: userLogo;
 }
 
+.lock {
+  height: var(--top-height);
+  width: 50px;
+}
+
 .settings {
   grid-area: settings;
   grid-template-areas:
