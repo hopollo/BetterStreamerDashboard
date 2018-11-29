@@ -34,10 +34,11 @@ function getChat() {
 }
 
 function lockItems() {
+  $('.lock').fadeIn(600, ()=> {$('.lock').css('display', 'block');});
   $('.handle').css('display', 'none');
   var img = '<span class="fas fa-lock"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
-  
+  //TODO Create a fade to display the button;
   $('.lock').click(() => { unlockItems(); });
 }
 
@@ -47,6 +48,7 @@ function unlockItems() {
   $('.handle').css('display', 'block');
   $('#drag').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
+  /* Drag feature for touch devices */
   $('#drag').on('touchmove', function(e) {
     xPos = e.changedTouches[0].clientX;
     offset = $('.center').width() - $('.handle').width();
