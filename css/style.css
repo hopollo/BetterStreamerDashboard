@@ -1,6 +1,6 @@
 :root {
   --top-height: 8vh;
-  --middle-height: calc(100vh - var(--top-height) - var(--bottom-height));
+  --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
   --bottom-height: 5vh;
 }
 
@@ -15,17 +15,17 @@ body {
   grid-template-columns: repeat(4, 1f);
   grid-template-areas:
   "top top top top"
-  "left middle middle right"
+  "center center center center"
   "bottom bottom bottom bottom";
 }
 
 .top {
-  display: grid;
+  display: none;
   font-weight: bold;
   justify-items: center;
   align-items: center;
   grid-area: top;
-  grid-template-columns: 60px auto auto auto;
+  grid-template-columns: 50px auto auto auto;
   grid-template-areas:
   "userLogo streamTitle streamTitle streamGame";
   height: var(--top-height);
@@ -38,51 +38,62 @@ body {
 }
 
 .streamTitle {
-  display: grid;
   grid-area: streamTitle;
 }
 
 .streamGame {
-  display: grid;
   grid-area: streamGame;
 }
 
-.left {
+.center {
   display: grid;
-  grid-area: left;
+  grid-area: center;
+  height: var(--center-height);
 }
 
-.middle {
-  display: grid;
-  grid-area: middle;
-  z-index: -1;
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 10px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 10px solid #ff0000;
+  height: 10vh;
+  width: 10vh;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
 }
 
-.right {
-  display: grid;
-  grid-area: right;
+iframe {
   position: relative;
-}
-
-.right iframe {
-  position: relative;
-  right: 0;
   transform: translateY(50%, -50%);
-  -webkit-transform: translateY(50%,-50%);
-  height: var(--middle-height);
+  height: var(--center-height);
   width: calc(100vw/4);
 }
 
 .bottom {
-  display: grid;
+  display: none;
   grid-area: bottom;
   font-weight: bold;
   justify-items: center;
   align-items: center;
   height: var(--bottom-height);
   color: white;
-  background: rgb(42, 42, 247);
+  /* background: rgb(42, 42, 247); */
+  background: rgb(20,20,20);
   grid-template-columns: auto auto auto auto;
   grid-template-areas:
   "1 2 3 4";
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(720deg); }
 }
