@@ -110,6 +110,5 @@ iframe {
 @media only screen and (max-width : 1024px) {
   iframe {
     width: calc(100vw/3);
-    height: var(--center-height);
   }
 }
