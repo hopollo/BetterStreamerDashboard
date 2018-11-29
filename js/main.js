@@ -47,6 +47,15 @@ function unlockItems() {
   $('.handle').css('display', 'block');
   $('#drag').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
+  $('#drag').on('touchmove', function(e) {
+    xPos = e.changedTouches[0].clientX;
+    offset = $('.center').width() - $('.handle').width();
+    console.log(xPos + '>' + offset);
+    if (xPos > 0 && xPos < offset) {
+      $('#drag').css('left', xPos);
+    }
+  });
+
   $('.lock').click(() => { lockItems(); });
 }
 
@@ -130,7 +139,7 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.center').append(`<div id="drag" class="draggable resizable ui-draggable ui-draggable-handle"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
+  $('.center').append(`<div id="drag" class="ui-widget-content"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
   $('.settings').append(`<button class="lock"></button>`);
 
   lockItems();
