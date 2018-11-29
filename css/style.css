@@ -12,6 +12,8 @@
 
 body {
   background: rgb(44, 44, 44);
+  max-width: 100vw;
+  max-height: 100vh;
   grid-template-columns: repeat(4, 1f);
   grid-template-areas:
   "top top top top"
@@ -65,11 +67,18 @@ body {
   animation: spin 2s linear infinite;
 }
 
+#draggable {
+  width: calc(100vw/4);
+  padding: 0.2em;
+  background: grey;
+  height: var(--center-height);
+}
+
 iframe {
   position: relative;
   transform: translateY(50%, -50%);
-  height: var(--center-height);
-  width: calc(100vw/4);
+  height: 100%;
+  width: 100%;
 }
 
 .bottom {
@@ -96,4 +105,11 @@ iframe {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(720deg); }
+}
+
+@media only screen and (max-width : 1024px) {
+  #draggable {
+    width: calc(100vw/3);
+    height: var(--center-height);
+  }
 }
