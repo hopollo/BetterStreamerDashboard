@@ -77,8 +77,8 @@ body {
 iframe {
   position: relative;
   transform: translateY(50%, -50%);
-  height: 100%;
-  width: 100%;
+  height: var(--center-height);
+  width: calc(100vw/4);
 }
 
 .bottom {
@@ -108,7 +108,7 @@ iframe {
 }
 
 @media only screen and (max-width : 1024px) {
-  #draggable {
+  iframe {
     width: calc(100vw/3);
     height: var(--center-height);
   }
