@@ -14,9 +14,9 @@ function getTwitchInfo() {
   fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
     .then(res => res.json())
     .then(data => {
-      $('.userLogo').replaceWith(`<img src="${data.data[0].profile_image_url}" width=50px height=50px />`);
+      $('.userLogo').replaceWith(`<img src="${data.data[0].profile_image_url}" width=50px height=50px />`);  
       userID = data.data[0].id;
-      secondPassFetch()
+      secondPassFetch();
     });
 
     function secondPassFetch() {
@@ -31,6 +31,23 @@ function getTwitchInfo() {
 
 function getChat() {
   $('#chat_embed').prop('src',`https://www.twitch.tv/embed/${user}/chat`);
+}
+
+function lockItems() {
+  $('.handle').css('display', 'none');
+  var img = '<span class="fas fa-lock"></span>';
+  $('.lock').replaceWith(`<button class="lock">${img}</button>`);
+  
+  $('.lock').click(() => { unlockItems(); });
+}
+
+function unlockItems() {
+  var img = '<span class="fas fa-lock-open"></span>';
+  $('.lock').replaceWith(`<button class="lock">${img}</button>`);
+  $('.handle').css('display', 'block');
+  $('#drag').draggable({iframeFix: true, cursor: "move", containment : ".center"});
+
+  $('.lock').click(() => { lockItems(); });
 }
 
 function getViewers() {
@@ -113,8 +130,10 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.center').prepend(`<div id="draggable" class="ui-widget-content"><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
-  
+  $('.center').append(`<div id="drag" class="draggable resizable ui-draggable ui-draggable-handle"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
+  $('.settings').append(`<button class="lock"></button>`);
+
+  lockItems();
   getChat();
   getTwitchInfo();
   getViewers();
@@ -122,8 +141,10 @@ $(window).ready(() => {
   getTitle();
   getGame();
   //getActivities();
-
-  $('#draggable').draggable({containment : ".center"});
+  
+  $('.lock').click(() => {
+    unlockItems();
+  });
 
   setInterval(function() {
     getTwitchInfo();
