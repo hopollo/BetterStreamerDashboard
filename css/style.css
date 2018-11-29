@@ -77,8 +77,8 @@ body {
 iframe {
   position: relative;
   transform: translateY(50%, -50%);
-  height: var(--center-height);
-  width: calc(100vw/4);
+  height: 100%;
+  width: 100%;
 }
 
 .bottom {
@@ -89,7 +89,6 @@ iframe {
   align-items: center;
   height: var(--bottom-height);
   color: white;
-  /* background: rgb(42, 42, 247); */
   background: rgb(20,20,20);
   grid-template-columns: auto auto auto auto;
   grid-template-areas:
@@ -107,8 +106,26 @@ iframe {
   100% { transform: rotate(720deg); }
 }
 
-@media only screen and (max-width : 1024px) {
-  iframe {
+/* IPADs */
+@media only screen and (max-width : 1024px) and (max-height : 768px) {
+  #draggable {
     width: calc(100vw/3);
+  }
+}
+
+@media only screen and (max-width : 768px) and (max-height : 1024px) {
+  :root {
+    --top-height: 6vh;
+    --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
+    --bottom-height: 5vh;
+  }
+  
+  .top {
+    height: var(--top-height);
+  }
+
+  #draggable {
+    width: calc(100vw/1.5);
+    height: calc(100vh - 6vh - var(--bottom-height));
   }
 }
