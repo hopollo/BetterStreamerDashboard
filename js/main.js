@@ -7,7 +7,6 @@ var name;
 var client_id = 'tz2timwcbqtsagu0a8oo11xp849hxo';
 
 function getTwitchInfo() {
-  
   var token = {
     headers: {'Client-ID' : client_id}
   };
@@ -15,9 +14,7 @@ function getTwitchInfo() {
   fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
     .then(res => res.json())
     .then(data => {
-      //Display UserLogo
-      console.log(data);
-      $('.userLogo').replaceWith(`<img src="${data.data[0].profile_image_url}" width=60px height=60px />`);
+      $('.userLogo').replaceWith(`<img src="${data.data[0].profile_image_url}" width=50px height=50px />`);
       userID = data.data[0].id;
       secondPassFetch()
     });
@@ -91,11 +88,18 @@ function getUptime() {
 }
 
 function getActivities() {
-  $.ajax({url : `https://api.streamelements.com/kappa/v2/activities/${user}`, 
-          headers: {'Client-ID' : client_id}
-        }, (activities) => {
-    $('.activities').text(activities);
-  });
+  //var url = `https://api.streamelements.com/kappa/v2/activities/${user}`; 
+  var url = `https://api.streamelements.com/kappa/v2/channels/me`; 
+  var token = {
+    headers: {
+      'Client-ID' : '5k3eXSKds9eBgcwlmzhe6vmEEFaejNOr0GzPIMehfVa5zF1Z'
+    }
+  };
+
+  fetch(url, token)
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .then(err => console.log(err));
 }
 
 // https://decapi.me/twitch/chat_rules/hopollo chatRULES
@@ -103,18 +107,31 @@ function getLastHighLight() {
   //https://decapi.me/twitch/highlight/${user}
 }
 
-getChat();
-getTwitchInfo();
-getViewers();
-getViews();
-getTitle();
-getGame();
+function starting() {
+  $('.center').prepend('<div class="loading"></div>');
+}
 
-setInterval(() => {
+$(window).ready(() => {
+  $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
+  $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
+  $('.center').prepend(`<iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe>`);
+  
+  getChat();
   getTwitchInfo();
   getViewers();
   getViews();
   getTitle();
   getGame();
-  //getActivities();
-}, 1200000);
+  getActivities();
+   
+  setInterval(() => {
+    getTwitchInfo();
+    getViewers();
+    getViews();
+    getTitle();
+    getGame();
+    //getActivities();
+  }, 1200000);
+});
+
+starting();
