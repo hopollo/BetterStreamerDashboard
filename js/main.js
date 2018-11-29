@@ -39,7 +39,6 @@ function getViewers() {
       var img = '<span class="fas fa-video-slash"></span>'
       $('.viewers').replaceWith(`${img}`);
     } else {
-      //TODO (hopollo) : ADD VIEWERS ICON BEFORE
       var img = '<span class="fas fa-child"></span>'
       $('.viewers').replaceWith(img);
       $('.fa-child').text(` ${viewers}`);
@@ -114,7 +113,7 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.center').prepend(`<iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe>`);
+  $('.center').prepend(`<div id="draggable" class="ui-widget-content"><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
   
   getChat();
   getTwitchInfo();
@@ -122,16 +121,18 @@ $(window).ready(() => {
   getViews();
   getTitle();
   getGame();
-  getActivities();
-   
-  setInterval(() => {
+  //getActivities();
+
+  $('#draggable').draggable({containment : ".center"});
+
+  setInterval(function() {
     getTwitchInfo();
     getViewers();
     getViews();
     getTitle();
     getGame();
     //getActivities();
-  }, 1200000);
+  }, 1*60*1000);
 });
 
 starting();
