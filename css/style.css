@@ -27,9 +27,9 @@ body {
   justify-items: center;
   align-items: center;
   grid-area: top;
-  grid-template-columns: 50px auto auto auto;
+  grid-template-columns: 50px auto auto auto auto;
   grid-template-areas:
-  "userLogo streamTitle streamTitle streamGame";
+  "userLogo settings streamTitle streamTitle streamGame";
   height: var(--top-height);
   color: white;
   background: rgb(20, 20, 20);
@@ -37,6 +37,12 @@ body {
 
 .userLogo {
   grid-area: userLogo;
+}
+
+.settings {
+  grid-area: settings;
+  grid-template-areas:
+  "settings lock";
 }
 
 .streamTitle {
@@ -67,18 +73,24 @@ body {
   animation: spin 2s linear infinite;
 }
 
-#draggable {
-  width: calc(100vw/4);
-  padding: 0.2em;
-  background: grey;
+#drag {
+  position: relative;
   height: var(--center-height);
+  width: calc(100vw/4);
+  transform: translateY(50%, -50%);
+}
+
+.handle {
+  position: absolute;
+  width: 100%;
+  height: 10%;
+  background:darkgrey;
 }
 
 iframe {
-  position: relative;
-  transform: translateY(50%, -50%);
-  height: 100%;
+  height: calc(var(--center-height) - 10px);
   width: 100%;
+  height: 100%;
 }
 
 .bottom {
