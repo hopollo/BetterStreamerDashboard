@@ -13,7 +13,7 @@ function getTwitchInfo() {
   fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
     .then(res => res.json())
     .then(data => {
-      $('.userLogo').replaceWith(`<img src="${data.data[0].profile_image_url}" width=50px height=50px />`);  
+      $('.userLogo').replaceWith(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="50px"/></div>`);  
       userID = data.data[0].id;
       secondPassFetch();
     });
@@ -39,6 +39,8 @@ function getPreferences() {
   $('.preferences').click(() => { showPreferences(); });
   $('.center').append('<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>');
   $('.modal-content').append('<ul class="options"></ul>');
+
+  //TODO add all basic features line per line
   /*
   $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Chat</input>');
   $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Uptime</input>');
@@ -71,14 +73,15 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('#drag').draggable({iframeFix: true, cursor: "move", containment : ".center"});
+  $('#drag-tchat').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
   /* Drag feature for touch devices */
-  $('#drag').on('touchmove', function(e) {
+  //TODO Tweak drag feature
+  $('#drag-tchat').on('touchmove', function(e) {
     var xPos = e.changedTouches[0].clientX;
     var offset = $('.center').width() - $('.handle').width();
     if (xPos > 0 && xPos < offset) {
-      $('#drag').css('left', xPos);
+      $('#drag-tchat').css('left', xPos);
     }
   });
 
@@ -89,7 +92,7 @@ function getViewers() {
   $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
     if (viewers == `${user} is offline`) {
       var img = '<span class="fas fa-video-slash"></span>'
-      $('.viewers').replaceWith(`${img}`);
+      $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
     } else {
       var img = '<span class="fas fa-child"></span>'
       $('.viewers').replaceWith(img);
@@ -102,15 +105,15 @@ function getViewers() {
 function getFollowers() {
   $.get(`https://decapi.me/twitch/followers/${user}`, (followers) => {
     var img = '<span class="fas fa-heart"></span>';
-    $('.followers').replaceWith(img);
-    $('.fa-heart').text(` ${totalFollowers} (${followers})`);
+    $('.followers').replaceWith(`<div class="followers">${img}</div>`);
+    $('.fa-heart').text(`${totalFollowers} (${followers})`);
   });
 }
 
 function getViews() {
   $.get(`https://decapi.me/twitch/total_views/${user}`, (views) => {
     var img = '<span class="fas fa-eye"></span>';
-    $('.views').replaceWith(img);
+    $('.views').replaceWith(`<div class="views">${img}</div>`);
     $('.fa-eye').text(` ${views}`);
   });
 }
@@ -124,7 +127,7 @@ function getTitle() {
 function getGame() {
   $.get(`https://decapi.me/twitch/game/${user}`, (game) => {
     var img = '<span class="fas fa-gamepad"></span>';
-    $('.streamGame').replaceWith(`${img}`);
+    $('.streamGame').replaceWith(`<div class="streamGame">${img}</div>`);
     $('.fa-gamepad').text(` ${game}`);
   })
 }
@@ -135,7 +138,7 @@ function getUptime() {
       $('.uptime').text('');
     } else {
       var img = '<span class="fas fa-clock"></span>';
-      $('.uptime').replaceWith(`${img}`);
+      $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
       var splitted = uptime.split(' ');
       var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
       var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
@@ -164,13 +167,13 @@ function getLastHighLight() {
 }
 
 function starting() {
-  $('.center').prepend('<div class="loading"></div>');
+  $('.center').append('<div class="loading"></div>');
 }
 
 $(window).ready(() => {
-  $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
+  $('.loading').fadeOut(1000, () => { $('.loading').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.center').append(`<div id="drag" class="ui-widget-content"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
+  $('.center').append(`<div id="drag-tchat" class="ui-widget-content"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
