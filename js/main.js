@@ -3,7 +3,6 @@ var user = url.searchParams.get('name');
 var userID;
 var avatar;
 var followers;
-var name;
 var client_id = 'tz2timwcbqtsagu0a8oo11xp849hxo';
 
 function getTwitchInfo() {
@@ -33,26 +32,51 @@ function getChat() {
   $('#chat_embed').prop('src',`https://www.twitch.tv/embed/${user}/chat`);
 }
 
+function getPreferences() {
+  var img = '<span class="fas fa-cog"></span>';
+  $('.preferences').replaceWith(`<button class="preferences">${img}</button>`);
+  $('.preferences').css('display', 'block');
+  $('.preferences').click(() => { showPreferences(); });
+  $('.center').append('<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>');
+  $('.modal-content').append('<ul class="options"></ul>');
+  /*
+  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Chat</input>');
+  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Uptime</input>');
+  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Views</input>');
+  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Viewers</input>');
+  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Followers</input>');
+  */
+  $('.modal-content').append('<div class="donate"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="donate-button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
+  $('.options').append('<span>New features soon, more info : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');
+}
+
+function showPreferences() {
+  $('.modal').css('display', 'block');
+
+  $('.close').click(() => {
+    $('.modal').css('display', 'none');
+  });
+}
+
 function lockItems() {
-  $('.lock').fadeIn(600, ()=> {$('.lock').css('display', 'block');});
   $('.handle').css('display', 'none');
   var img = '<span class="fas fa-lock"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
-  //TODO Create a fade to display the button;
+  $('.lock').css('display', 'block'); //REMARK Some weird looking bug on css display
   $('.lock').click(() => { unlockItems(); });
 }
 
 function unlockItems() {
   var img = '<span class="fas fa-lock-open"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
+  $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
   $('#drag').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
   /* Drag feature for touch devices */
   $('#drag').on('touchmove', function(e) {
-    xPos = e.changedTouches[0].clientX;
-    offset = $('.center').width() - $('.handle').width();
-    console.log(xPos + '>' + offset);
+    var xPos = e.changedTouches[0].clientX;
+    var offset = $('.center').width() - $('.handle').width();
     if (xPos > 0 && xPos < offset) {
       $('#drag').css('left', xPos);
     }
@@ -135,9 +159,8 @@ function getActivities() {
     .then(err => console.log(err));
 }
 
-// https://decapi.me/twitch/chat_rules/hopollo chatRULES
 function getLastHighLight() {
-  //https://decapi.me/twitch/highlight/${user}
+  var url = `https://decapi.me/twitch/highlight/${user}`;
 }
 
 function starting() {
@@ -148,8 +171,10 @@ $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loafing').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
   $('.center').append(`<div id="drag" class="ui-widget-content"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
+  $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
+  getPreferences();
   lockItems();
   getChat();
   getTwitchInfo();
