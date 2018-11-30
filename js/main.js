@@ -42,7 +42,7 @@ function getTwitchInfo() {
   fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
     .then(res => res.json())
     .then(data => {
-      $('.userLogo').replaceWith(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></div>`);  
+      $('.top').append(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></div>`);  
       userID = data.data[0].id;
       secondPassFetch();
     });
@@ -179,14 +179,14 @@ function getViews() {
 
 function getTitle() {
   $.get(`https://decapi.me/twitch/status/${user}`, (title) => {
-    $('.streamTitle').text(title);
+    $('.top').append(`<div class="streamTitle">${title}</div>`);
   })
 }
 
 function getGame() {
   $.get(`https://decapi.me/twitch/game/${user}`, (game) => {
     var img = '<span class="fas fa-gamepad"></span>';
-    $('.streamGame').append(`<div class="streamGame">${img} ${game}</div>`);
+    $('.top').append(`<div class="streamGame">${img} ${game}</div>`);
   })
 }
 
@@ -253,6 +253,7 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loading').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
+  $('.top').append('<div class="settings"></div>');
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
