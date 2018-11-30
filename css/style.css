@@ -228,13 +228,14 @@ iframe {
   
   .top { height: var(--top-height); }
 
-  #drag-tchat {
+  .chat {
     width: calc(100vw/1.5);
     height: calc(100vh - 6vh - var(--bottom-height));
   }
 }
 
 /* POPULAR smartphones */
+/* LANDSCAPE */
 @media only screen and (max-width : 850px) and (max-height : 420px) {
   .top { grid-template-columns: 20px auto auto auto auto;}
   
@@ -248,6 +249,7 @@ iframe {
   .handle { height: 15%; }
 }
 
+/* PORTRAIT */
 @media only screen and (max-width : 420px) and (max-height : 850px) {
   :root { --top-height: 40px; }
   
@@ -259,7 +261,7 @@ iframe {
   .settings { grid-column-gap: 5px; }
   .streamTitle { display: none; }
 
-  #drag-tchat { /* tchat */
+  .chat {
     width: 100vw;
     height: 70vh;
   }
