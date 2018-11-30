@@ -38,7 +38,7 @@ a:visited {
   justify-items: center;
   align-items: center;
   grid-area: top;
-  grid-template-columns: 50px auto auto auto auto;
+  grid-template-columns: var(--top-height) auto auto auto auto;
   grid-template-areas:
   "userLogo settings streamTitle streamTitle streamGame";
   height: var(--top-height);
@@ -48,7 +48,7 @@ a:visited {
 
 .userLogo {
   grid-area: userLogo;
-  height: var(--top-height);
+  height: 100%;
 }
 
 .settings {
