@@ -22,10 +22,12 @@ function getStatic() {
   $('.top').append('<div class="settings"></div>');
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
-  $('.bottom').append(`<div class="views"></div>`);
-  $('.bottom').append(`<div class="uptime"></div>`);
-  $('.bottom').append(`<div class="viewers"></div>`);
-  $('.bottom').append(`<div class="followers"></div>`);
+
+  createFollowers();
+  createUptime();
+  createViewers();
+  createViews();
+
   getChat();
 }
 
@@ -208,7 +210,7 @@ function getUptime() {
       var splitted = uptime.split(' ');
       var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
       var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
-      $('.fa-clock').text(` ${hours}h${minutes}m`);
+      $('.fa-clock').text(` ${hours}:${minutes}`);
     }
   });
 }
@@ -230,6 +232,29 @@ function getActivities() {
 
 function getLastHighLight() {
   var url = `https://decapi.me/twitch/highlight/${user}`;
+}
+
+function createViews() {
+  modules.twitchViews = true;
+  $('.bottom').append(`<div class="views"></div>`);
+  getViews();
+}
+
+function createUptime() {
+  modules.twitchUptime = true;
+  $('.bottom').append(`<div class="uptime"></div>`);
+}
+
+function createViewers() {
+  modules.twitchViewers = true;
+  $('.bottom').append(`<div class="viewers"></div>`);
+  getViewers();
+}
+
+function createFollowers() {
+  modules.twitchFollowers = true;
+  $('.bottom').append(`<div class="followers"></div>`);
+  getFollowers();
 }
 
 function removeVideo() {
@@ -278,25 +303,25 @@ $(window).ready(() => {
     if ($(this).is(':checked')) {
       switch(this['className']) {
         case 'options-item-twitchVideo':
-          getVideo();
+          createVideo();
           break;
         case 'options-item-twitchClips':
-          getClips();
+          createClips();
           break;
         case 'options-item-twitchChat':
-          getChat();
+          createChat();
           break;
         case 'options-item-uptime':
-          getUptime();
+          createUptime();
           break;
         case 'options-item-views':
-          getViews();
+          createViews();
           break;
         case 'options-item-viewers':
-          getViewers();
+          createViewers();
           break;
         case 'options-item-twitchFollowers':
-          getFollowers();
+          createFollowers();
           break;
       }
     }
