@@ -16,22 +16,23 @@ var modules = {
   streamElementsAcitivites: false,
 }
 
-function getRequestedModules() {
+function getStatic() {
+  $('.top').append('<div class="streamTitle"></div>')
+  $('.top').append('<div class="streamGame"></div>')
+  $('.top').append('<div class="settings"></div>');
+  $('.settings').append(`<button class="preferences"></button>`);
+  $('.settings').append(`<button class="lock"></button>`);
+  getChat();
+}
+
+function updateModules() {
   getTwitchInfo();
   getGame();
   getTitle();
 
-  if (modules.twitchVideo && modules.twitchChat && modules.twitchClips) { getFullEmbed(); }
-  if (modules.twitchVideo) { getVideo(); }
-  if (modules.twitchClips) { getClips(); }
-  if (modules.twitchChat) { getChat(); }
   if (modules.twitchViews) { getViews(); }
   if (modules.twitchViewers) { getViewers(); }
   if (modules.getActivities) { getActivities(); }
-}
-
-function updateRequestedModules() {
-
 }
 
 function getTwitchInfo() {
@@ -88,8 +89,8 @@ function getClips() {
 
 function getChat() {
   $('.center').append(`
-  <div class="chat" class="ui-widget-content">
-    <div class='handle'></div>
+  <div class="chat">
+    <div class="handle"></div>
     <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${user}/chat"></iframe>
   </div>`);
 }
@@ -151,6 +152,7 @@ function unlockItems() {
 }
 
 function getViewers() {
+  modules.viewers = true;
   $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
     if (viewers == `${user} is offline`) {
       var img = '<span class="fas fa-video-slash"></span>'
@@ -164,6 +166,7 @@ function getViewers() {
 }
 
 function getFollowers() {
+  modules.followers = true;
   $.get(`https://decapi.me/twitch/followers/${user}`, (followers) => {
     var img = '<span class="fas fa-heart"></span>';
     $('.bottom').append(`<div class="followers">${img} ${totalFollowers} (${followers})</div>`);
@@ -171,6 +174,7 @@ function getFollowers() {
 }
 
 function getViews() {
+  modules.views = true;
   $.get(`https://decapi.me/twitch/total_views/${user}`, (views) => {
     var img = '<span class="fas fa-eye"></span>';
     $('.bottom').append(`<div class="views">${img} ${views}</div>`);
@@ -179,14 +183,14 @@ function getViews() {
 
 function getTitle() {
   $.get(`https://decapi.me/twitch/status/${user}`, (title) => {
-    $('.top').append(`<div class="streamTitle">${title}</div>`);
+    $('.streamTitle').replaceWith(`<div class="streamTitle">${title}</div>`);
   })
 }
 
 function getGame() {
   $.get(`https://decapi.me/twitch/game/${user}`, (game) => {
     var img = '<span class="fas fa-gamepad"></span>';
-    $('.top').append(`<div class="streamGame">${img} ${game}</div>`);
+    $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game}</div>`);
   })
 }
 
@@ -225,24 +229,31 @@ function getLastHighLight() {
 }
 
 function removeVideo() {
+  modules.twitchVideo = false;
   $('.video').remove();
 }
 function removeClips() {
+  modules.twitchClips = false;
   $('.clips').remove();
 }
 function removeChat() {
+  modules.twitchChat = false;
   $('.chat').remove();
 }
 function removeUptime() {
+  modules.uptime = false;
   $('.uptime').remove();
 }
 function removeViews() {
+  modules.views = false;
   $('.views').remove();
 }
 function removeViewers() {
+  modules.viewers = false;
   $('.viewers').remove();
 }
 function removeFollowers() {
+  modules.followers = false;
   $('.followers').remove();
 }
 
@@ -253,13 +264,11 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loading').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.top').append('<div class="settings"></div>');
-  $('.settings').append(`<button class="preferences"></button>`);
-  $('.settings').append(`<button class="lock"></button>`);
 
+  getStatic();
   getPreferences();
   lockItems();
-  getRequestedModules();
+  updateModules();
 
   $('input:checkbox').change(function() {
     if ($(this).is(':checked')) {
@@ -314,7 +323,7 @@ $(window).ready(() => {
     }
   });
 
-  setInterval(function() { updateRequestedModules(); }, 1*60*1000);
+  setInterval(function() { updateModules(); }, 1*60*1000);
 });
 
 starting();
