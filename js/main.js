@@ -22,6 +22,9 @@ function getStatic() {
   $('.top').append('<div class="settings"></div>');
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
+  $('.bottom').append(`<div class="viewers"></div>`);
+  $('.bottom').append(`<div class="views"></div>`);
+  $('.bottom').append(`<div class="followers"></div>`);
   getChat();
 }
 
@@ -156,10 +159,10 @@ function getViewers() {
   $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
     if (viewers == `${user} is offline`) {
       var img = '<span class="fas fa-video-slash"></span>'
-      $('.bottom').append(`<div class="viewers">${img}</div>`);
+      $('.bottom').replaceWith(`<div class="viewers">${img}</div>`);
     } else {
       var img = '<span class="fas fa-child"></span>'
-      $('.bottom').append(`<div class="viewers">${img} ${viewers}</div>`);
+      $('.bottom').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
       getUptime();
     }
   });
