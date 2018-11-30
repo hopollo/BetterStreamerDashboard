@@ -208,7 +208,7 @@ function getUptime() {
       var splitted = uptime.split(' ');
       var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
       var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
-      $('.fa-clock').text(` ${hours}:${minutes}`);
+      $('.fa-clock').text(` ${hours}h${minutes}m`);
     }
   });
 }
