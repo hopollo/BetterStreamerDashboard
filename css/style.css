@@ -44,6 +44,10 @@ body {
   width: 50px;
 }
 
+#drag {
+  cursor: move;
+}
+
 .settings {
   grid-area: settings;
   grid-template-areas:
