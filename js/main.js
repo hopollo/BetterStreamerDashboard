@@ -22,8 +22,9 @@ function getStatic() {
   $('.top').append('<div class="settings"></div>');
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
-  $('.bottom').append(`<div class="viewers"></div>`);
   $('.bottom').append(`<div class="views"></div>`);
+  $('.bottom').append(`<div class="uptime"></div>`);
+  $('.bottom').append(`<div class="viewers"></div>`);
   $('.bottom').append(`<div class="followers"></div>`);
   getChat();
 }
@@ -159,10 +160,10 @@ function getViewers() {
   $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
     if (viewers == `${user} is offline`) {
       var img = '<span class="fas fa-video-slash"></span>'
-      $('.bottom').replaceWith(`<div class="viewers">${img}</div>`);
+      $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
     } else {
       var img = '<span class="fas fa-child"></span>'
-      $('.bottom').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
+      $('.viewers').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
       getUptime();
     }
   });
@@ -172,7 +173,7 @@ function getFollowers() {
   modules.followers = true;
   $.get(`https://decapi.me/twitch/followers/${user}`, (followers) => {
     var img = '<span class="fas fa-heart"></span>';
-    $('.bottom').append(`<div class="followers">${img} ${totalFollowers} (${followers})</div>`);
+    $('.followers').replaceWith(`<div class="followers">${img} ${totalFollowers} (${followers})</div>`);
   });
 }
 
@@ -180,7 +181,7 @@ function getViews() {
   modules.views = true;
   $.get(`https://decapi.me/twitch/total_views/${user}`, (views) => {
     var img = '<span class="fas fa-eye"></span>';
-    $('.bottom').append(`<div class="views">${img} ${views}</div>`);
+    $('.views').replaceWith(`<div class="views">${img} ${views}</div>`);
   });
 }
 
