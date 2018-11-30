@@ -70,6 +70,7 @@ function getViewers() {
       var img = '<span class="fas fa-child"></span>'
       $('.viewers').replaceWith(img);
       $('.fa-child').text(` ${viewers}`);
+      getUptime();
     }
   });
 }
@@ -105,11 +106,16 @@ function getGame() {
 }
 
 function getUptime() {
-  $.get(`https://decapi.me/twitch/uptime/${name}`, (uptime) => {
-    if (uptime == 'A channel name has to be specified.') {
+  $.get(`https://decapi.me/twitch/uptime/${user}`, (uptime) => {
+    if (uptime == 'A channel user has to be specified.') {
       $('.uptime').text('');
     } else {
-      $('.uptime').text(uptime);
+      var img = '<span class="fas fa-clock"></span>';
+      $('.uptime').replaceWith(`${img}`);
+      var splitted = uptime.split(' ');
+      var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
+      var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
+      $('.fa-clock').text(` ${hours}:${minutes}`);
     }
   });
 }
