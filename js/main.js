@@ -13,7 +13,7 @@ function getTwitchInfo() {
   fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
     .then(res => res.json())
     .then(data => {
-      $('.userLogo').replaceWith(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="50px"/></div>`);  
+      $('.userLogo').replaceWith(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></div>`);  
       userID = data.data[0].id;
       secondPassFetch();
     });
