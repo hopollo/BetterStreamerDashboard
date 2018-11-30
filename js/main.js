@@ -1,9 +1,38 @@
 var url = new URL(window.location.href);
-var user = url.searchParams.get('name');
+var user = url.searchParams.get('name') || 'hopollo';
 var userID;
 var avatar;
 var followers;
 var client_id = 'tz2timwcbqtsagu0a8oo11xp849hxo';
+
+var modules = {
+  twitchVideo : false,
+  twitchClips : false,
+  twitchChat: true,
+  twitchUptime: true,
+  twitchViews: true,
+  twitchViewers: true,
+  twitchFollowers: true,
+  streamElementsAcitivites: false,
+}
+
+function getRequestedModules() {
+  getTwitchInfo();
+  getGame();
+  getTitle();
+
+  if (modules.twitchVideo && modules.twitchChat && modules.twitchClips) { getFullEmbed(); }
+  if (modules.twitchVideo) { getVideo(); }
+  if (modules.twitchClips) { getClips(); }
+  if (modules.twitchChat) { getChat(); }
+  if (modules.twitchViews) { getViews(); }
+  if (modules.twitchViewers) { getViewers(); }
+  if (modules.getActivities) { getActivities(); }
+}
+
+function updateRequestedModules() {
+
+}
 
 function getTwitchInfo() {
   var token = {
@@ -23,13 +52,46 @@ function getTwitchInfo() {
         .then(res => res.json())
         .then(data => {
           totalFollowers = data.total;
-          getFollowers(totalFollowers);
+          if (modules.twitchFollowers) { getFollowers(totalFollowers); }
         });
     }
 }
 
+function getFullEmbed() {
+  defaultTheme = "dark";
+}
+
+function getVideo() {
+}
+
+function getClips() {
+  var url = `https://api.twitch.tv/kraken/clips/top?limit=1&channel=moonmoon_ow`;
+  var token = {
+    headers: {
+      'Client-ID' : client_id,
+    }
+  };
+
+  fetch(url, token)
+    .then(res => res.json())
+    .then(data => console.log(data))
+
+  $('.center').append(`
+  <iframe src="https://clips.twitch.tv/embed?clip=<slug>"
+    height="360"
+    width="640"
+    frameborder="0"
+    scrolling="no"
+    allowfullscreen="true">
+  </iframe>`);
+}
+
 function getChat() {
-  $('#chat_embed').prop('src',`https://www.twitch.tv/embed/${user}/chat`);
+  $('.center').append(`
+  <div class="chat" class="ui-widget-content">
+    <div class='handle'></div>
+    <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${user}/chat"></iframe>
+  </div>`);
 }
 
 function getPreferences() {
@@ -37,19 +99,19 @@ function getPreferences() {
   $('.preferences').replaceWith(`<button class="preferences">${img}</button>`);
   $('.preferences').css('display', 'block');
   $('.preferences').click(() => { showPreferences(); });
-  $('.center').append('<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>');
+  $('.center').append(`<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>`);
   $('.modal-content').append('<ul class="options"></ul>');
+  
+  //$('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input></li>`);
+  //$('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-views" checked> Twitch Views</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-viewers" checked> Twitch Viewers</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
 
-  //TODO add all basic features line per line
-  /*
-  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Chat</input>');
-  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Uptime</input>');
-  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Views</input>');
-  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Viewers</input>');
-  $('.options').append('<input type="checkbox" class="options-item" checked> Twitch Followers</input>');
-  */
+  $('.options').append('<span>New features soon, more info : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
   $('.modal-content').append('<div class="donate"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="donate-button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
-  $('.options').append('<span>New features soon, more info : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');
 }
 
 function showPreferences() {
@@ -73,15 +135,15 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('#drag-tchat').draggable({iframeFix: true, cursor: "move", containment : ".center"});
+  $('.chat').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
-  $('#drag-tchat').on('touchmove', function(e) {
+  $('.chat').on('touchmove', function(e) {
     var xPos = e.changedTouches[0].clientX;
     var offset = $('.center').width() - $('.handle').width();
     if (xPos > 0 && xPos < offset) {
-      $('#drag-tchat').css('left', xPos);
+      $('.chat').css('left', xPos);
     }
   });
 
@@ -92,11 +154,10 @@ function getViewers() {
   $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
     if (viewers == `${user} is offline`) {
       var img = '<span class="fas fa-video-slash"></span>'
-      $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
+      $('.bottom').append(`<div class="viewers">${img}</div>`);
     } else {
       var img = '<span class="fas fa-child"></span>'
-      $('.viewers').replaceWith(img);
-      $('.fa-child').text(` ${viewers}`);
+      $('.bottom').append(`<div class="viewers">${img} ${viewers}</div>`);
       getUptime();
     }
   });
@@ -105,16 +166,14 @@ function getViewers() {
 function getFollowers() {
   $.get(`https://decapi.me/twitch/followers/${user}`, (followers) => {
     var img = '<span class="fas fa-heart"></span>';
-    $('.followers').replaceWith(`<div class="followers">${img}</div>`);
-    $('.fa-heart').text(`${totalFollowers} (${followers})`);
+    $('.bottom').append(`<div class="followers">${img} ${totalFollowers} (${followers})</div>`);
   });
 }
 
 function getViews() {
   $.get(`https://decapi.me/twitch/total_views/${user}`, (views) => {
     var img = '<span class="fas fa-eye"></span>';
-    $('.views').replaceWith(`<div class="views">${img}</div>`);
-    $('.fa-eye').text(` ${views}`);
+    $('.bottom').append(`<div class="views">${img} ${views}</div>`);
   });
 }
 
@@ -127,8 +186,7 @@ function getTitle() {
 function getGame() {
   $.get(`https://decapi.me/twitch/game/${user}`, (game) => {
     var img = '<span class="fas fa-gamepad"></span>';
-    $('.streamGame').replaceWith(`<div class="streamGame">${img}</div>`);
-    $('.fa-gamepad').text(` ${game}`);
+    $('.streamGame').append(`<div class="streamGame">${img} ${game}</div>`);
   })
 }
 
@@ -166,6 +224,28 @@ function getLastHighLight() {
   var url = `https://decapi.me/twitch/highlight/${user}`;
 }
 
+function removeVideo() {
+  $('.video').remove();
+}
+function removeClips() {
+  $('.clips').remove();
+}
+function removeChat() {
+  $('.chat').remove();
+}
+function removeUptime() {
+  $('.uptime').remove();
+}
+function removeViews() {
+  $('.views').remove();
+}
+function removeViewers() {
+  $('.viewers').remove();
+}
+function removeFollowers() {
+  $('.followers').remove();
+}
+
 function starting() {
   $('.center').append('<div class="loading"></div>');
 }
@@ -173,32 +253,67 @@ function starting() {
 $(window).ready(() => {
   $('.loading').fadeOut(1000, () => { $('.loading').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-  $('.center').append(`<div id="drag-tchat" class="ui-widget-content"><div class='handle'></div><iframe frameborder="0" scrolling="true" id="chat_embed" src=""></iframe></div>`);
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
   getPreferences();
   lockItems();
-  getChat();
-  getTwitchInfo();
-  getViewers();
-  getViews();
-  getTitle();
-  getGame();
-  //getActivities();
-  
-  $('.lock').click(() => {
-    unlockItems();
+  getRequestedModules();
+
+  $('input:checkbox').change(function() {
+    if ($(this).is(':checked')) {
+      switch(this['className']) {
+        case 'options-item-twitchVideo':
+          getVideo();
+          break;
+        case 'options-item-twitchClips':
+          getClips();
+          break;
+        case 'options-item-twitchChat':
+          getChat();
+          break;
+        case 'options-item-uptime':
+          getUptime();
+          break;
+        case 'options-item-views':
+          getViews();
+          break;
+        case 'options-item-viewers':
+          getViewers();
+          break;
+        case 'options-item-twitchFollowers':
+          getFollowers();
+          break;
+      }
+    }
+    else {
+      switch(this['className']) {
+        case 'options-item-twitchVideo':
+          removeVideo();
+          break;
+        case 'options-item-twitchClips':
+          removeClips();
+          break;
+        case 'options-item-twitchChat':
+          removeChat();
+          break;
+        case 'options-item-uptime':
+          removeUptime();
+          break;
+        case 'options-item-views':
+          removeViews();
+          break;
+        case 'options-item-viewers':
+          removeViewers();
+          break;
+        case 'options-item-twitchFollowers':
+          removeFollowers();
+          break;
+      }
+    }
   });
 
-  setInterval(function() {
-    getTwitchInfo();
-    getViewers();
-    getViews();
-    getTitle();
-    getGame();
-    //getActivities();
-  }, 1*60*1000);
+  setInterval(function() { updateRequestedModules(); }, 1*60*1000);
 });
 
 starting();
