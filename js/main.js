@@ -1,275 +1,320 @@
-:root {
-  --top-height: 8vh;
-  --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
-  --bottom-height: 5vh;
-  --link-color: red;
+var url = new URL(window.location.href);
+var user = url.searchParams.get('name') || 'hopollo';
+var userID;
+var avatar;
+var followers;
+var client_id = 'tz2timwcbqtsagu0a8oo11xp849hxo';
+
+var modules = {
+  twitchVideo : false,
+  twitchClips : false,
+  twitchChat: true,
+  twitchUptime: true,
+  twitchViews: true,
+  twitchViewers: true,
+  twitchFollowers: true,
+  streamElementsAcitivites: false,
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+function getRequestedModules() {
+  getTwitchInfo();
+  getGame();
+  getTitle();
+
+  if (modules.twitchVideo && modules.twitchChat && modules.twitchClips) { getFullEmbed(); }
+  if (modules.twitchVideo) { getVideo(); }
+  if (modules.twitchClips) { getClips(); }
+  if (modules.twitchChat) { getChat(); }
+  if (modules.twitchViews) { getViews(); }
+  if (modules.twitchViewers) { getViewers(); }
+  if (modules.getActivities) { getActivities(); }
 }
 
-body {
-  background: rgb(44, 44, 44);
-  max-width: 100vw;
-  max-height: 100vh;
-  grid-template-columns: repeat(4, 1f);
-  grid-template-areas:
-  "top top top top"
-  "center center center center"
-  "bottom bottom bottom bottom";
+function updateRequestedModules() {
+
 }
 
-li { list-style: none; }
+function getTwitchInfo() {
+  var token = {
+    headers: {'Client-ID' : client_id}
+  };
+ 
+  fetch(`https://api.twitch.tv/helix/users?login=${user}`, token)
+    .then(res => res.json())
+    .then(data => {
+      $('.top').append(`<div class="userLogo"><img src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></div>`);  
+      userID = data.data[0].id;
+      secondPassFetch();
+    });
 
-a {
-  text-decoration: none;
-  color: var(--link-color);
+    function secondPassFetch() {
+      fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, token)
+        .then(res => res.json())
+        .then(data => {
+          totalFollowers = data.total;
+          if (modules.twitchFollowers) { getFollowers(totalFollowers); }
+        });
+    }
 }
 
-a:hover,
-a:visited { color: var(--link-color); }
-
-.top {
-  display: none;
-  font-weight: bold;
-  justify-items: center;
-  align-items: center;
-  grid-area: top;
-  grid-template-columns: var(--top-height) auto auto auto auto;
-  grid-template-areas:
-  "userLogo settings streamTitle streamTitle streamGame";
-  height: var(--top-height);
-  color: white;
-  background: rgb(20, 20, 20);
+function getFullEmbed() {
+  defaultTheme = "dark";
 }
 
-.userLogo {
-  grid-area: userLogo;
-  height: 100%;
+function getVideo() {
 }
 
-.settings {
-  display: grid;
-  grid-area: settings;
-  grid-column-gap: 30px;
-  grid-template-areas:
-  "settings lock";
+function getClips() {
+  var url = `https://api.twitch.tv/kraken/clips/top?limit=1&channel=moonmoon_ow`;
+  var token = {
+    headers: {
+      'Client-ID' : client_id,
+    }
+  };
+
+  fetch(url, token)
+    .then(res => res.json())
+    .then(data => console.log(data))
+
+  $('.center').append(`
+  <iframe src="https://clips.twitch.tv/embed?clip=<slug>"
+    height="360"
+    width="640"
+    frameborder="0"
+    scrolling="no"
+    allowfullscreen="true">
+  </iframe>`);
 }
 
-.preferences, .lock {
-  display: none;
-  height: var(--top-height);
-  width: 50px;
+function getChat() {
+  $('.center').append(`
+  <div class="chat" class="ui-widget-content">
+    <div class='handle'></div>
+    <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${user}/chat"></iframe>
+  </div>`);
 }
 
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  padding-top: 100px;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-}
-
-.modal-content {
-  position: relative;
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 60%;
-}
-
-.options { display: block; }
-
-.donate {
-  margin-left: auto;
-  margin-right: auto;
-  height: 50px;
-  width: 90px;
-}
-.donate-button {
-  height: 100%; 
-  width: 100%;
-}
-
-.close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.streamTitle { grid-area: streamTitle; }
-
-.streamGame { grid-area: streamGame; }
-
-.center {
-  display: grid;
-  grid-area: center;
-  height: var(--center-height);
-}
-
-.loading {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 10px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 10px solid #ff0000;
-  height: 10vh;
-  width: 10vh;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
-  animation: spin 2s linear infinite;
-}
-
-.chat {
-  cursor: move;
-  position: relative;
-  height: var(--center-height);
-  width: calc(100vw/4);
-  transform: translateY(50%, -50%);
-}
-
-.handle {
-  display: none;
-  position: absolute;
-  width: 100%;
-  height: 9%;
-  background:darkgrey;
-}
-
-iframe {
-  height: calc(var(--center-height) - 10px);
-  width: 100%;
-  height: 100%;
-}
-
-.bottom {
-  display: none;
-  grid-area: bottom;
-  font-weight: bold;
-  justify-items: center;
-  align-items: center;
-  height: var(--bottom-height);
-  color: white;
-  background: rgb(20,20,20);
-  grid-template-columns: auto auto auto auto;
-  grid-template-areas:
-  "views uptime followers viewers";
-}
-
-.views { grid-area: views; }
-.uptime { grid-area: uptime; }
-.followers { grid-area: followers; }
-.viewers { grid-area: viewers; }
-
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(720deg); }
-}
-
-/* IPADs */
-@media only screen and (max-width : 1050px) and (max-height : 1400px) {
-  :root {
-    --top-height: 6vh;
-    --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
-    --bottom-height: 5vh;
-  }
+function getPreferences() {
+  var img = '<span class="fas fa-cog"></span>';
+  $('.preferences').replaceWith(`<button class="preferences">${img}</button>`);
+  $('.preferences').css('display', 'block');
+  $('.preferences').click(() => { showPreferences(); });
+  $('.center').append(`<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>`);
+  $('.modal-content').append('<ul class="options"></ul>');
   
-  .top {
-    height: var(--top-height);
-    grid-template-columns: 80px auto auto auto auto;
-  }
+  //$('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input></li>`);
+  //$('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-views" checked> Twitch Views</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-viewers" checked> Twitch Viewers</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
 
-  .userLogo {
-    height: 100%;
-    width: auto;
-  }
-
-  .preferences, .lock { width: 85px; }
-
-  #drag-tchat {
-    width: 100vw;
-    height: 80%;
-  }
-
-  .handle { height: 5%; }
+  $('.options').append('<span>New features soon, more info : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
+  $('.modal-content').append('<div class="donate"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="donate-button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
 }
 
-@media only screen and (max-width : 1400px) and (max-height : 1024px) {
-  :root {
-    --top-height: 6vh;
-    --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
-    --bottom-height: 5vh;
-  }
-  
-  .top { height: var(--top-height); }
+function showPreferences() {
+  $('.modal').css('display', 'block');
 
-  #drag-tchat {
-    width: calc(100vw/1.5);
-    height: calc(100vh - 6vh - var(--bottom-height));
-  }
+  $('.close').click(() => {
+    $('.modal').css('display', 'none');
+  });
 }
 
-/* POPULAR smartphones */
-@media only screen and (max-width : 850px) and (max-height : 420px) {
-  .top { grid-template-columns: 20px auto auto auto auto;}
-  
-  .userLogo {
-    height: 100%;
-    width: auto;
-  }
-
-  .settings { grid-column-gap: 20px; }
-  .preferences, .lock { width: 40px; }
-  .handle { height: 15%; }
+function lockItems() {
+  $('.handle').css('display', 'none');
+  var img = '<span class="fas fa-lock"></span>';
+  $('.lock').replaceWith(`<button class="lock">${img}</button>`);
+  $('.lock').css('display', 'block'); //REMARK Some weird looking bug on css display
+  $('.lock').click(() => { unlockItems(); });
 }
 
-@media only screen and (max-width : 420px) and (max-height : 850px) {
-  :root { --top-height: 40px; }
-  
-  .top {
-    height: var(--top-height);
-    grid-template-columns: 40px auto auto auto auto;
-  }
+function unlockItems() {
+  var img = '<span class="fas fa-lock-open"></span>';
+  $('.lock').replaceWith(`<button class="lock">${img}</button>`);
+  $('.lock').css('display', 'block');
+  $('.handle').css('display', 'block');
+  $('.chat').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
-  .settings { grid-column-gap: 5px; }
-  .streamTitle { display: none; }
+  /* Drag feature for touch devices */
+  //TODO Tweak drag feature
+  $('.chat').on('touchmove', function(e) {
+    var xPos = e.changedTouches[0].clientX;
+    var offset = $('.center').width() - $('.handle').width();
+    if (xPos > 0 && xPos < offset) {
+      $('.chat').css('left', xPos);
+    }
+  });
 
-  #drag-tchat { /* tchat */
-    width: 100vw;
-    height: 70vh;
-  }
-
-  .views { display: none; }
-
-  .userLogo {
-    height: var(--top-height);
-    width: auto;
-  }
-
-  .handle { height: 50px; }
+  $('.lock').click(() => { lockItems(); });
 }
+
+function getViewers() {
+  $.get(`https://decapi.me/twitch/viewercount/${user}`, (viewers) => {
+    if (viewers == `${user} is offline`) {
+      var img = '<span class="fas fa-video-slash"></span>'
+      $('.bottom').append(`<div class="viewers">${img}</div>`);
+    } else {
+      var img = '<span class="fas fa-child"></span>'
+      $('.bottom').append(`<div class="viewers">${img} ${viewers}</div>`);
+      getUptime();
+    }
+  });
+}
+
+function getFollowers() {
+  $.get(`https://decapi.me/twitch/followers/${user}`, (followers) => {
+    var img = '<span class="fas fa-heart"></span>';
+    $('.bottom').append(`<div class="followers">${img} ${totalFollowers} (${followers})</div>`);
+  });
+}
+
+function getViews() {
+  $.get(`https://decapi.me/twitch/total_views/${user}`, (views) => {
+    var img = '<span class="fas fa-eye"></span>';
+    $('.bottom').append(`<div class="views">${img} ${views}</div>`);
+  });
+}
+
+function getTitle() {
+  $.get(`https://decapi.me/twitch/status/${user}`, (title) => {
+    $('.top').append(`<div class="streamTitle">${title}</div>`);
+  })
+}
+
+function getGame() {
+  $.get(`https://decapi.me/twitch/game/${user}`, (game) => {
+    var img = '<span class="fas fa-gamepad"></span>';
+    $('.top').append(`<div class="streamGame">${img} ${game}</div>`);
+  })
+}
+
+function getUptime() {
+  $.get(`https://decapi.me/twitch/uptime/${user}`, (uptime) => {
+    if (uptime == 'A channel user has to be specified.') {
+      $('.uptime').text('');
+    } else {
+      var img = '<span class="fas fa-clock"></span>';
+      $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
+      var splitted = uptime.split(' ');
+      var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
+      var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
+      $('.fa-clock').text(` ${hours}:${minutes}`);
+    }
+  });
+}
+
+function getActivities() {
+  //var url = `https://api.streamelements.com/kappa/v2/activities/${user}`; 
+  var url = `https://api.streamelements.com/kappa/v2/channels/me`; 
+  var token = {
+    headers: {
+      'Client-ID' : '5k3eXSKds9eBgcwlmzhe6vmEEFaejNOr0GzPIMehfVa5zF1Z'
+    }
+  };
+
+  fetch(url, token)
+    .then(res => res.json())
+    .then(data => console.log(data))
+    .then(err => console.log(err));
+}
+
+function getLastHighLight() {
+  var url = `https://decapi.me/twitch/highlight/${user}`;
+}
+
+function removeVideo() {
+  $('.video').remove();
+}
+function removeClips() {
+  $('.clips').remove();
+}
+function removeChat() {
+  $('.chat').remove();
+}
+function removeUptime() {
+  $('.uptime').remove();
+}
+function removeViews() {
+  $('.views').remove();
+}
+function removeViewers() {
+  $('.viewers').remove();
+}
+function removeFollowers() {
+  $('.followers').remove();
+}
+
+function starting() {
+  $('.center').append('<div class="loading"></div>');
+}
+
+$(window).ready(() => {
+  $('.loading').fadeOut(1000, () => { $('.loading').remove(); });
+  $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
+  $('.top').append('<div class="settings"></div>');
+  $('.settings').append(`<button class="preferences"></button>`);
+  $('.settings').append(`<button class="lock"></button>`);
+
+  getPreferences();
+  lockItems();
+  getRequestedModules();
+
+  $('input:checkbox').change(function() {
+    if ($(this).is(':checked')) {
+      switch(this['className']) {
+        case 'options-item-twitchVideo':
+          getVideo();
+          break;
+        case 'options-item-twitchClips':
+          getClips();
+          break;
+        case 'options-item-twitchChat':
+          getChat();
+          break;
+        case 'options-item-uptime':
+          getUptime();
+          break;
+        case 'options-item-views':
+          getViews();
+          break;
+        case 'options-item-viewers':
+          getViewers();
+          break;
+        case 'options-item-twitchFollowers':
+          getFollowers();
+          break;
+      }
+    }
+    else {
+      switch(this['className']) {
+        case 'options-item-twitchVideo':
+          removeVideo();
+          break;
+        case 'options-item-twitchClips':
+          removeClips();
+          break;
+        case 'options-item-twitchChat':
+          removeChat();
+          break;
+        case 'options-item-uptime':
+          removeUptime();
+          break;
+        case 'options-item-views':
+          removeViews();
+          break;
+        case 'options-item-viewers':
+          removeViewers();
+          break;
+        case 'options-item-twitchFollowers':
+          removeFollowers();
+          break;
+      }
+    }
+  });
+
+  setInterval(function() { updateRequestedModules(); }, 1*60*1000);
+});
+
+starting();
