@@ -54,6 +54,7 @@ a:visited { color: var(--link-color); }
 .settings {
   display: grid;
   grid-area: settings;
+  height: 100%;
   grid-column-gap: 30px;
   grid-template-areas:
   "settings lock";
@@ -61,8 +62,6 @@ a:visited { color: var(--link-color); }
 
 .preferences, .lock {
   display: none;
-  height: var(--top-height);
-  width: 50px;
 }
 
 .modal {
@@ -192,86 +191,46 @@ iframe {
 }
 
 /* IPADs */
-@media only screen and (max-width : 1050px) and (max-height : 1400px) {
-  :root {
-    --top-height: 6vh;
-    --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
-    --bottom-height: 5vh;
-  }
-  
-  .top {
-    height: var(--top-height);
-    grid-template-columns: 80px auto auto auto auto;
-  }
-
-  .userLogo {
-    height: 100%;
-    width: auto;
-  }
-
+/* LANDSCAPE */
+@media only screen and (max-width : 1400px) and (max-height : 1024px) {
+  .chat { width: calc(100vw/2); }
+  .settings { grid-column-gap: 5px; }
   .preferences, .lock { width: 85px; }
-
-  #drag-tchat {
-    width: 100vw;
-    height: 80%;
-  }
-
+  .chat { width: calc(100vw/2); }
   .handle { height: 5%; }
 }
 
-@media only screen and (max-width : 1400px) and (max-height : 1024px) {
-  :root {
-    --top-height: 6vh;
-    --center-height: calc(100vh - var(--top-height) - var(--bottom-height));
-    --bottom-height: 5vh;
-  }
-  
-  .top { height: var(--top-height); }
-
-  .chat {
-    width: calc(100vw/1.5);
-    height: calc(100vh - 6vh - var(--bottom-height));
-  }
+/* PORTRAIT */
+@media only screen and (max-width : 1050px) and (max-height : 1400px) {
+  :root { --top-height: 5vh; }
+  .top { grid-template-columns: var(--top-height) auto auto auto auto;}
+  .chat { width: calc(100vw/2); }
+  .settings { grid-column-gap: 5px; }
+  .preferences, .lock { width: 50px; }
+  .chat { width: calc(100vw/2); }
+  .handle { height: 5%; }
 }
 
 /* POPULAR smartphones */
 /* LANDSCAPE */
 @media only screen and (max-width : 850px) and (max-height : 420px) {
-  .top { grid-template-columns: 20px auto auto auto auto;}
-  
-  .userLogo {
-    height: 100%;
-    width: auto;
-  }
-
-  .settings { grid-column-gap: 20px; }
-  .preferences, .lock { width: 40px; }
-  .handle { height: 15%; }
+  :root { --top-height: 40px; }
+  .settings { grid-column-gap: 0px; }
 }
 
 /* PORTRAIT */
 @media only screen and (max-width : 420px) and (max-height : 850px) {
   :root { --top-height: 40px; }
-  
   .top {
     height: var(--top-height);
-    grid-template-columns: 40px auto auto auto auto;
+    grid-template-columns: var(--top-height) auto auto auto auto;
   }
-
   .settings { grid-column-gap: 5px; }
   .streamTitle { display: none; }
-
   .chat {
     width: 100vw;
     height: 70vh;
   }
-
   .views { display: none; }
-
-  .userLogo {
-    height: var(--top-height);
-    width: auto;
-  }
-
   .handle { height: 50px; }
 }
