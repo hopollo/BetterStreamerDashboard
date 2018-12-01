@@ -23,12 +23,11 @@ function getStatic() {
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
+  createChat();
   createFollowers();
   createUptime();
   createViewers();
   createViews();
-
-  getChat();
 }
 
 function updateModules() {
@@ -69,10 +68,21 @@ function getFullEmbed() {
 }
 
 function getVideo() {
+  $('.video').replaceWith(`
+  <div class="module video">
+    <div class="handle"></div>
+    <iframe src="https://player.twitch.tv/?channel=${user}" 
+      frameborder="0" 
+      allowfullscreen="true" 
+      scrolling="no" 
+      height="100%" 
+      width="100%">
+    </iframe>
+  </div>`);
 }
 
 function getClips() {
-  var url = `https://api.twitch.tv/kraken/clips/top?limit=1&channel=moonmoon_ow`;
+  var url = `https://api.twitch.tv/kraken/clips/top?limit=1&channel=${user}`;
   var token = {
     headers: {
       'Client-ID' : client_id,
@@ -94,8 +104,8 @@ function getClips() {
 }
 
 function getChat() {
-  $('.center').append(`
-  <div class="chat">
+  $('.chat').replaceWith(`
+  <div class="module chat">
     <div class="handle"></div>
     <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${user}/chat"></iframe>
   </div>`);
@@ -109,7 +119,7 @@ function getPreferences() {
   $('.center').append(`<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>`);
   $('.modal-content').append('<ul class="options"></ul>');
   
-  //$('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input><span class="new">new</span></li>`);
   //$('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
@@ -142,15 +152,15 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('.chat').draggable({iframeFix: true, cursor: "move", containment : ".center"});
+  $('.module').draggable({iframeFix: true, cursor: "move", containment : ".center"});
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
-  $('.chat').on('touchmove', function(e) {
+  $('.module').on('touchmove', function(e) {
     var xPos = e.changedTouches[0].clientX;
     var offset = $('.center').width() - $('.handle').width();
     if (xPos > 0 && xPos < offset) {
-      $('.chat').css('left', xPos);
+      $('.module').css('left', xPos);
     }
   });
 
@@ -232,6 +242,16 @@ function getActivities() {
 
 function getLastHighLight() {
   var url = `https://decapi.me/twitch/highlight/${user}`;
+}
+
+function createVideo() {
+  $('.center').append(`<div class="module video"></div>`);
+  getVideo();
+}
+
+function createChat() {
+  $('.center').append(`<div class="module chat"></div>`);
+  getChat();
 }
 
 function createViews() {
