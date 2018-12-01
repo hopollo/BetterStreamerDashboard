@@ -89,6 +89,8 @@ a:visited { color: var(--link-color); }
 
 .options { display: block; }
 
+.new { margin-left : 20px; color: orange; font-weight: bold; }
+
 .donate {
   margin-left: auto;
   margin-right: auto;
@@ -119,7 +121,7 @@ a:visited { color: var(--link-color); }
 .streamGame { grid-area: streamGame; }
 
 .center {
-  display: grid;
+  display: flex;
   grid-area: center;
   height: var(--center-height);
 }
@@ -138,7 +140,7 @@ a:visited { color: var(--link-color); }
   animation: spin 2s linear infinite;
 }
 
-.chat {
+.module {
   cursor: move;
   position: relative;
   height: var(--center-height);
@@ -193,10 +195,10 @@ iframe {
 /* IPADs */
 /* LANDSCAPE */
 @media only screen and (max-width : 1400px) and (max-height : 1024px) {
-  .chat { width: calc(100vw/2); }
+  .module { width: calc(100vw/2); }
   .settings { grid-column-gap: 5px; }
   .preferences, .lock { width: 85px; }
-  .chat { width: calc(100vw/2); }
+  .module { width: calc(100vw/2); }
   .handle { height: 5%; }
 }
 
@@ -204,10 +206,10 @@ iframe {
 @media only screen and (max-width : 1050px) and (max-height : 1400px) {
   :root { --top-height: 5vh; }
   .top { grid-template-columns: var(--top-height) auto auto auto auto;}
-  .chat { width: calc(100vw/2); }
+  .module { width: calc(100vw/2); }
   .settings { grid-column-gap: 5px; }
   .preferences, .lock { width: 50px; }
-  .chat { width: calc(100vw/2); }
+  .module { width: calc(100vw/2); }
   .handle { height: 5%; }
 }
 
@@ -227,7 +229,7 @@ iframe {
   }
   .settings { grid-column-gap: 5px; }
   .streamTitle { display: none; }
-  .chat {
+  .module {
     width: 100vw;
     height: 70vh;
   }
