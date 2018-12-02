@@ -1,6 +1,8 @@
-window.location.href = window.location.href + "?name=YOUR_TWITCH_NAME";
-//var url = new URL(window.location.href);
+var url = new URL(window.location.href);
 var user = url.searchParams.get('name');
+if (user == null) {
+  alert('Please specify your channel name and press ENTER with : ?name=YOUR_TWITCH_NAME');
+}
 var userID;
 var avatar;
 var followers;
