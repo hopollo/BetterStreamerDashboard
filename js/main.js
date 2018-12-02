@@ -1,5 +1,5 @@
-var url = new URL(window.location.href);
-var user = url.searchParams.get('name') || 'hopollo';
+var url = new URL(window.location.href + "?name=YOUR_TWITCH_NAME");
+var user = url.searchParams.get('name');
 var userID;
 var avatar;
 var followers;
