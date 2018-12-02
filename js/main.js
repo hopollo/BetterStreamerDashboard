@@ -1,6 +1,8 @@
-//var url = new URL(window.location.href);
-window.location.href = "https://betterstreamerdashboard.netlify.com/?name=YOUR_TWITCH_NAME";
+var url = new URL(window.location.href);
 var user = window.location.href.searchParams.get('name');
+if (user == null)  {
+  alert(`Please specify your name and retry (${window.location.href + "?name=YOUR_TWITCH_NAME"})`);
+}
 var userID;
 var avatar;
 var followers;
