@@ -1,5 +1,5 @@
-var url = new URL(window.location.href + "?name=YOUR_TWITCH_NAME");
-var user = window.location.href.searchParams.get('name');
+var url = new URL(window.location.href);
+var user = window.location.href.searchParams.get('name') || 'YOUR_TWITCH_NAME';
 if (user == 'YOUR_TWITCH_NAME')  {
   alert(`Please specify your name and retry (${"https://betterstreamerdashboard.netlify.com/?name=YOUR_TWITCH_NAME"})`);
 }
