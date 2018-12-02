@@ -1,6 +1,6 @@
 var url = new URL(window.location.href);
 var user = window.location.href.searchParams.get('name');
-if (user == null)  {
+if (user == null || user = undefined)  {
   alert(`Please specify your name and retry (${"https://betterstreamerdashboard.netlify.com/?name=YOUR_TWITCH_NAME"})`);
 }
 var userID;
