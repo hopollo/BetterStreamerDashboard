@@ -1,5 +1,5 @@
 var url = new URL(window.location.href);
-window.location.href =+ "?name=YOUR_TWITCH_NAME";
+window.location.href = window.location.href + "?name=YOUR_TWITCH_NAME";
 var user = window.location.href.searchParams.get('name');
 var userID;
 var avatar;
