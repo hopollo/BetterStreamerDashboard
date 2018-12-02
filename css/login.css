@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Titillium Web', sans-serif;
+  background: rgb(44, 44, 44);
+  background-attachment: fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.gear {
+  border: 10px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 10px solid #ff0000;
+  height: 10vh;
+  width: 10vh;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+.login {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  animation: dropdown 2 linear;
+}
+
+.loginTitle {
+  margin-bottom: 80px;
+}
+
+h1, h2 {
+  margin-bottom: 30px; 
+}
+
+.twitchLoginButton {
+  cursor: pointer;
+  width: 250px;
+  height: 50px;
+  letter-spacing: 1.2px;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  text-transform: uppercase;
+  background: #9a3cc0;
+}
+
+.twitchLoginButton a {
+  color:white;
+}
+
+.twitchLoginButton:hover {
+  background: #9e5cb8;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(720deg); }
+}
