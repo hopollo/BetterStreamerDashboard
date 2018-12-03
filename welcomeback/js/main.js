@@ -11,7 +11,6 @@ $(window).ready(() => {
 });
 
 function authenticate() {
-  
   /* Decompose token (token) */
   var token = window.location.hash;
   token = token.split('=')[1];
@@ -53,7 +52,7 @@ function authenticate() {
 
 var modules = {
   twitchVideo : false,
-  twitchClips : false,
+  twitchClips : true,
   twitchChat: true,
   twitchUptime: true,
   twitchViews: true,
@@ -81,6 +80,7 @@ function updateModules() {
   getGame();
   getTitle();
 
+  if (modules.twitchClips) { getClips(); }
   if (modules.twitchViews) { getViews(); }
   if (modules.twitchViewers) { getViewers(); }
   if (modules.getActivities) { getActivities(); }
@@ -120,20 +120,21 @@ function getVideo() {
 function getClips() {
   var limit = 3;
   var period = "day";
-  var clipName;
-  var clipGame;
-  var thumbnail;
 
   $('.clips').replaceWith(`
   <div class="module clips">
     <div class="handle"></div>
     <div class="clipsList">
-        <div class="defaultClip"><h1 style="color:white;">No clips yet</h1></div>
+        <div class="defaultClip">
+          <div style="display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i><div>
+          <h1 style="color:black;">No clips yet</h1>
+        </div>
     </div>
   </div>`
   );
 
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=${limit}`;
+  var url = `https://api.twitch.tv/kraken/clips/top?channel=lirik&period=${period}&limit=${limit}`;
+
   var token = {
     mode: 'cors',
     headers: {
@@ -153,13 +154,15 @@ function getClips() {
         for (var i=0, len=results; i<len; i++) {
           var clipEmbedUrl = data.clips[i].embed_url;
           var clipThumbnail = data.clips[i].thumbnails.small;
+          var clipViews = data.clips[i].views;
           var clipTitle = data.clips[i].title;
+          // TODO ADD CLIP TITLE LENGTH clipTitle = clipTitle.length > 30 ? clipTitle : "..."
           var clipDuration = data.clips[i].duration;
           var clipCreator = data.clips[i].curator.display_name;
           $('.clipsList').append(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName">By : ${clipCreator} (${clipDuration} sec)</div>
+            <div class="clipCreatorName">By : <a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
             </li>`
           );
         }
@@ -175,13 +178,16 @@ function getChat() {
   </div>`);
 }
 
-function getPreferences() {
+function getSettings() {
+
+  /* SETTINGS PART */
   var img = '<span class="fas fa-cog"></span>';
   $('.preferences').replaceWith(`<button class="preferences">${img}</button>`);
   $('.preferences').css('display', 'block');
   $('.preferences').click(() => { showPreferences(); });
-  $('.center').append(`<div id="myModal" class="modal"><div class="modal-content"><span class="close">&times;</span></div></div>`);
-  $('.modal-content').append('<ul class="options"></ul>');
+  
+  $('.center').append(`<div id="settings" class="modal settings-modal"><div class="modal-content settings-content"><span class="close">&times;</span></div></div>`);
+  $('.settings-content').append('<ul class="options"></ul>');
   
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input><span class="new">new</span></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input><span class="new">new</span></li>`);
@@ -192,11 +198,43 @@ function getPreferences() {
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
 
   $('.options').append('<span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
-  $('.modal-content').append('<div class="donate"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="donate-button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
+  $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
+
+  /* STREAM INFO PART */
+  $('.center').append(`<div id="streamInfo" class="modal infos-modal"><div class="modal-content infos-content"><span class="close">&times;</span></div></div>`);
+  $('.infos-content').append(`
+    <div class="streamInfoContainer">
+      <form class="streamInfo">
+        <ul class="options">
+          <li><label>Title</label></li>
+          <li><input class="titleLabel" type="text"></li>
+          <li><label>Game</label></li>
+          <li><input class="gameLabel" type="text"></li>
+        </ul>
+        
+        <div class="button-container"><input class="submitInfo button" type="submit" value="Submit"></div>
+      </form>
+    </div>
+  `);
 }
 
 function showPreferences() {
-  $('.modal').css('display', 'block');
+  $('.settings-modal').css('display', 'block');
+
+  $('.close').click(() => {
+    $('.modal').css('display', 'none');
+  });
+}
+
+function showInfo() {
+  $('.infos-modal').css('display', 'block');
+
+  $('.submitInfo').click(() => {
+    var titleToUpdate = $('.titleLabel').val();
+    var gameToUpdate = $('.gameLabel').val();
+
+    updateStreamInfo(titleToUpdate, gameToUpdate);
+  });
 
   $('.close').click(() => {
     $('.modal').css('display', 'none');
@@ -279,21 +317,50 @@ function getViews() {
 
 function getTitle() {
   $.get(`https://decapi.me/twitch/status/${displayName}`, (title) => {
-      $('.streamTitle').replaceWith(`<div class="streamTitle">${title}</div>`);
+      $('.streamTitle').replaceWith(`<div class="streamTitle">${title} <i class="fas fa-pen edit"></i></div>`);
+      $('.edit').click(() => {
+        $('.titleLabel').attr('placeholder', title);
+        showInfo();
+      });
   });
 }
 
 function getGame() {
   $.get(`https://decapi.me/twitch/game/${displayName}`, (game) => {
       var img = '<a href="https://www.twitch.tv/directory/game/${game}" target="_blank"><span class="fas fa-gamepad"></span></a>';
-      $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game}</div>`);
+      $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
+      $('.edit').click(() => {
+        $('.gameLabel').attr('placeholder', game);
+        showInfo();
+      });
   });
 }
 
-function updateStreamInfo() {
-  //https://dev.twitch.tv/docs/v5/reference/channels/#update-channel
+function updateStreamInfo(status, game) {
 
-  //PUT https://api.twitch.tv/kraken/channels/<channel ID>
+  var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": `https://api.twitch.tv/kraken/channels/${userID}`,
+    "method": "PUT",
+    "headers": {
+      "Client-ID": "awedukrko4ea7nyzbr33niem0zvghx",
+      "Accept": "application/vnd.twitchtv.v5+json",
+      "Authorization": "OAuth ix7vzx6dq6k3k19xxlgow3tthq09lq",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    "data": {
+      "channel[status]": status,
+      "channel[game]": game
+    }
+  }
+  
+  $.ajax(settings).done(function (response) {
+    //TODO Add validated Img before close
+    $('.modal').css('display', 'none');
+    getTitle();
+    getGame();
+  });
 }
 
 function getUptime() {
@@ -336,6 +403,7 @@ function createVideo() {
 }
 
 function createClips() {
+  modules.twitchClips = true;
   $('.center').append(`<div class="module clips"></div>`);
   getClips();
 }
@@ -403,7 +471,7 @@ function logged() {
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
 
   getStatic();
-  getPreferences();
+  getSettings();
   lockItems();
   updateModules();
 
