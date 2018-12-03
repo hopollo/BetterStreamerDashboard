@@ -68,6 +68,7 @@ function getStatic() {
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
 
+  getUserAvatar();
   createChat();
   createFollowers();
   createUptime();
@@ -76,7 +77,6 @@ function getStatic() {
 }
 
 function updateModules() {
-  getTwitchInfo();
   getGame();
   getTitle();
 
@@ -86,7 +86,7 @@ function updateModules() {
   if (modules.getActivities) { getActivities(); }
 }
 
-function getTwitchInfo() {
+function getUserAvatar() {
   var token = {
     mode: 'cors',
     headers: { 'Authorization' : userAuth}
@@ -120,7 +120,7 @@ function getVideo() {
 function getClips() {
   var limit = 3;
   var period = "day";
-
+  //TODO CHANGE THAT TO AVOID KILL/REFRESH THE WINDOW
   $('.clips').replaceWith(`
   <div class="module clips">
     <div class="handle"></div>
@@ -133,7 +133,7 @@ function getClips() {
   </div>`
   );
 
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=${limit}`;
+  var url = `https://api.twitch.tv/kraken/clips/top?channel=lirik&period=${period}&limit=${limit}`;
 
   var token = {
     mode: 'cors',
@@ -290,7 +290,7 @@ function getFollowers() {
   var totalFollowers;
   var token = {
     mode: 'cors',
-    headers: { 'Authorization' : userAuth}
+    headers: { 'Client-ID' : clientID}
   };
 
   fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, token)
