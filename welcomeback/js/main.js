@@ -79,6 +79,7 @@ function getStatic() {
 function updateModules() {
   getGame();
   getTitle();
+  getFollowers();
 
   if (modules.twitchClips) { getClips(); }
   if (modules.twitchViews) { getViews(); }
@@ -133,7 +134,7 @@ function getClips() {
   </div>`
   );
 
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=${limit}`;
+  var url = `https://api.twitch.tv/kraken/clips/top?channel=lirik&period=${period}&limit=${limit}`;
 
   var token = {
     mode: 'cors',
@@ -290,7 +291,7 @@ function getFollowers() {
   var totalFollowers;
   var token = {
     mode: 'cors',
-    headers: { 'Client-ID' : clientID}
+    headers: { 'Authorization' : userAuth}
   };
 
   fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, token)
