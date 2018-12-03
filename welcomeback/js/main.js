@@ -133,7 +133,7 @@ function getClips() {
   </div>`
   );
 
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=lirik&period=${period}&limit=${limit}`;
+  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=${limit}`;
 
   var token = {
     mode: 'cors',
