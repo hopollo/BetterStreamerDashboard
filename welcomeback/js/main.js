@@ -53,6 +53,7 @@ function authenticate() {
 var modules = {
   twitchVideo : false,
   twitchClips : true,
+  twitchEvents : true,
   twitchChat: true,
   twitchUptime: true,
   twitchViews: true,
@@ -70,6 +71,7 @@ function getStatic() {
 
   getUserAvatar();
   createChat();
+  createEvents();
   createFollowers();
   createUptime();
   createViewers();
@@ -192,6 +194,7 @@ function getSettings() {
   
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input><span class="new">new</span></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input><span class="new">new</span></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchEvents" checked> Twitch Events</input><span class="new">new</span></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-views" checked> Twitch Views</input></li>`);
@@ -247,7 +250,7 @@ function lockItems() {
   $('.handle').css('display', 'none');
   var img = '<span class="fas fa-lock"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
-  $('.lock').css('display', 'block'); //REMARK Some weird looking bug on css display
+  $('.lock').css('display', 'block');
   
   $('.lock').click(() => { unlockItems(); });
 }
@@ -288,6 +291,7 @@ function getViewers() {
 
 function getFollowers() {
   modules.followers = true;
+  var eventType = "Follow";
   var totalFollowers;
   var token = {
     mode: 'cors',
@@ -304,8 +308,44 @@ function getFollowers() {
       $.get(`https://decapi.me/twitch/followers/${displayName}`, (follower) => {
       var img = '<span class="fas fa-heart"></span>';
       $('.followers').replaceWith(`<div class="followers">${img} ${totalFollowers} <a href="https://www.twitch.tv/${follower}" target="_blank">(${follower})</a></div>`);
+      addStreamEvent(follower, eventType);
     });
   });
+}
+
+var followList = [];
+
+function addStreamEvent(name,type) {
+  var timestamps = new Date();
+  var hours = (timestamps.getHours() < 10 ? '0': '') + timestamps.getHours();
+  var minutes = (timestamps.getMinutes() < 10 ? '0': '') + timestamps.getMinutes();
+  timestamps = `${hours}h${minutes}`;
+  
+  if (followList.includes(name)) { return }
+
+  followList.push(name);
+
+  var token = {
+    mode: 'cors',
+    headers: { 'Authorization' : userAuth}
+  };
+
+  fetch(`https://api.twitch.tv/helix/users?login=${name}`, token)
+    .then(res => res.json())
+    .then(data => {
+      var followerAvatar = data.data[0].profile_image_url;
+        $('.events').prepend(`
+          <div class="event-container">
+            <div class="event-author-info">
+            <img class="event-author-avatar" src="">
+            <div class="event-author-name">${name}</div>
+            <div class="event-author-type">${type}</div>
+            <div class="event-author-timer">${timestamps}<div>
+          </div>
+        </div>
+        `);
+        $('.event-author-avatar:first').attr('src', followerAvatar);
+    });
 }
 
 function getViews() {
@@ -402,35 +442,32 @@ function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
   getVideo();
 }
-
 function createClips() {
   modules.twitchClips = true;
   $('.center').append(`<div class="module clips"></div>`);
   getClips();
 }
-
+function createEvents() {
+  $('.center').append(`<div class="module events"></div>`);
+}
 function createChat() {
   $('.center').append(`<div class="module chat"></div>`);
   getChat();
 }
-
 function createViews() {
   modules.twitchViews = true;
   $('.bottom').append(`<div class="views"></div>`);
   getViews();
 }
-
 function createUptime() {
   modules.twitchUptime = true;
   $('.bottom').append(`<div class="uptime"></div>`);
 }
-
 function createViewers() {
   modules.twitchViewers = true;
   $('.bottom').append(`<div class="viewers"></div>`);
   getViewers();
 }
-
 function createFollowers() {
   modules.twitchFollowers = true;
   $('.bottom').append(`<div class="followers"></div>`);
@@ -444,6 +481,10 @@ function removeVideo() {
 function removeClips() {
   modules.twitchClips = false;
   $('.clips').remove();
+}
+function removeEvents() {
+  modules.twitchEvents = false;
+  $('.events').remove();
 }
 function removeChat() {
   modules.twitchChat = false;
@@ -485,6 +526,9 @@ function logged() {
         case 'options-item-twitchClips':
           createClips();
           break;
+        case 'options-item-twitchEvents':
+          createEvents();
+          break;
         case 'options-item-twitchChat':
           createChat();
           break;
@@ -509,6 +553,9 @@ function logged() {
           break;
         case 'options-item-twitchClips':
           removeClips();
+          break;
+        case 'options-item-twitchEvents':
+          removeEvents();
           break;
         case 'options-item-twitchChat':
           removeChat();
