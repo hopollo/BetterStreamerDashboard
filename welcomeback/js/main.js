@@ -79,8 +79,7 @@ function getStatic() {
 }
 
 function updateModules() {
-  getGame();
-  getTitle();
+  getTitleAndGame();
   getFollowers();
 
   if (modules.twitchClips) { getClips(); }
@@ -135,7 +134,7 @@ function getClips() {
     </div>
   </div>`
   );
-
+  
   var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   var token = {
@@ -213,10 +212,13 @@ function getSettings() {
       <form class="streamInfo">
         <ul class="options">
           <li><label>Title</label></li>
-          <li><input class="titleLabel" type="text"></li>
+          <li><input class="titleLabel" type="text"> <i class="fas fa-undo" style="cursor:pointer;"></i></li>
           <li><label>Game</label></li>
-          <li><input class="gameLabel" type="text"></li>
+          <li><input class="gameLabel" type="text"> <i class="game-label-state"></i></li>
         </ul>
+        <div class="game-image-container>
+          <a class="game-image-link" href=""><img class="game-image-thumbnail" src=""></a>
+        </div>
         
         <div class="button-container"><input class="submitInfo button" type="submit" value="Submit"></div>
       </form>
@@ -234,6 +236,15 @@ function showPreferences() {
 
 function showInfo() {
   $('.infos-modal').css('display', 'block');
+  $('.titleLabel').attr('placeholder', 'Your stream title...');
+  $('.gameLabel').attr('placeholder', 'Your stream game...');
+  $('.gameLabel').keyup(() => {
+    setTimeout(() => {
+      getGameImage();
+    }, 1500);
+  });
+
+  $('.fa-undo').click(() => { $('.titleLabel').val(''); })
 
   $('.submitInfo').click(() => {
     var titleToUpdate = $('.titleLabel').val();
@@ -358,25 +369,59 @@ function getViews() {
   });
 }
 
-function getTitle() {
-  $.get(`https://decapi.me/twitch/status/${displayName}`, (title) => {
+function getTitleAndGame() {
+  fetch(`https://decapi.me/twitch/status/${displayName}`)
+    .then(res => res.text())
+    .then(title => {
       $('.streamTitle').replaceWith(`<div class="streamTitle">${title} <i class="fas fa-pen edit"></i></div>`);
-      $('.edit').click(() => {
-        $('.titleLabel').attr('placeholder', title);
-        showInfo();
-      });
-  });
+      
+      fetch(`https://decapi.me/twitch/game/${displayName}`)
+      .then(res => res.text())
+      .then(game => {
+        var img = '<a href="https://www.twitch.tv/directory/game/${game}" target="_blank"><i class="fas fa-gamepad"></i></a>';
+        //TODO FIX LINK BUG
+        $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
+        $('.edit').click(() => {
+          $('.titleLabel').val(title);
+          $('.gameLabel').val(game);
+          showInfo();
+        });
+      })
+      .catch(err => {
+        $('.streamGame').replaceWith(`<div class="streamGame" style="color:red;">Error <i class="fas fa-pen edit"></i></div>`);
+      })
+    })
+    .catch(err => {
+      $('.streamTitle').replaceWith(`<div class="streamTitle" style="color:red;">Error <i class="fas fa-pen edit"></i></div>`);
+    })
 }
 
-function getGame() {
-  $.get(`https://decapi.me/twitch/game/${displayName}`, (game) => {
-      var img = '<a href="https://www.twitch.tv/directory/game/${game}" target="_blank"><span class="fas fa-gamepad"></span></a>';
-      $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
-      $('.edit').click(() => {
-        $('.gameLabel').attr('placeholder', game);
-        showInfo();
-      });
-  });
+function getGameImage() {
+  var currentGame = $('.gameLabel').val();
+  $('.game-label-state').replaceWith('<i class="game-label-state"><img class="game-image-loading"src="https://i.stack.imgur.com/FhHRx.gif" height="16px" width="16px"></i>');
+  settings = {
+    headers : {
+      "Client-ID" : clientID
+    }
+  }
+
+  if (currentGame != null) {
+    fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
+      .then(res => res.json())
+      .then(data => {
+        var gameImage = data.data[0].box_art_url;
+        var gameRealName = data.data[0].name;
+        gameImage = gameImage.replace('-{width}x{height}', '');
+        $('.game-image-link').attr('href', `https://www.twitch.tv/directory/game/${currentGame}`);
+        $('.game-image-thumbnail').attr('src', gameImage);
+        $('.gameLabel').val(gameRealName);
+        $('.game-label-state').replaceWith('<i class="fas fa-check game-label-state" style="color:green;"></i>');
+      })
+      .catch(err => {
+        $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
+        $('.game-image-thumbnail').attr('src', "");
+      })
+  }
 }
 
 function updateStreamInfo(status, game) {
@@ -401,8 +446,7 @@ function updateStreamInfo(status, game) {
   $.ajax(settings).done(function (response) {
     //TODO Add validated Img before close
     $('.modal').css('display', 'none');
-    getTitle();
-    getGame();
+    getTitleAndGame();
   });
 }
 
