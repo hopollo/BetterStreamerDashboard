@@ -122,7 +122,7 @@ function getVideo() {
 
 function getClips() {
   var limit = 3;
-  var period = "day";
+  var period = "all";
   //TODO CHANGE THAT TO AVOID KILL/REFRESH THE WINDOW
   $('.clips').replaceWith(`
   <div class="module clips">
@@ -136,7 +136,7 @@ function getClips() {
   </div>`
   );
 
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=${limit}`;
+  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   var token = {
     mode: 'cors',
@@ -159,10 +159,12 @@ function getClips() {
           var clipThumbnail = data.clips[i].thumbnails.small;
           var clipViews = data.clips[i].views;
           var clipTitle = data.clips[i].title;
-          // TODO ADD CLIP TITLE LENGTH clipTitle = clipTitle.length > 30 ? clipTitle : "..."
+          clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle;
           var clipDuration = data.clips[i].duration;
           var clipCreator = data.clips[i].curator.display_name;
-          $('.clipsList').append(`
+          clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
+
+          $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
             <div class="clipCreatorName">By : <a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
