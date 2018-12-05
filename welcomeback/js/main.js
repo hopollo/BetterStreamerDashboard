@@ -134,7 +134,7 @@ function getClips() {
     </div>
   </div>`
   );
-  
+
   var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   var token = {
@@ -378,9 +378,9 @@ function getTitleAndGame() {
       fetch(`https://decapi.me/twitch/game/${displayName}`)
       .then(res => res.text())
       .then(game => {
-        var img = '<a href="https://www.twitch.tv/directory/game/${game}" target="_blank"><i class="fas fa-gamepad"></i></a>';
-        //TODO FIX LINK BUG
+        var img = '<a class="gameInfoLink" href="" target="_blank"><i class="fas fa-gamepad"></i></a>';
         $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
+        $('.gameInfoLink').attr('href', `https://www.twitch.tv/directory/game/${game}`);
         $('.edit').click(() => {
           $('.titleLabel').val(title);
           $('.gameLabel').val(game);
@@ -416,10 +416,12 @@ function getGameImage() {
         $('.game-image-thumbnail').attr('src', gameImage);
         $('.gameLabel').val(gameRealName);
         $('.game-label-state').replaceWith('<i class="fas fa-check game-label-state" style="color:green;"></i>');
+        $('.submitInfo').prop('disabled', false);
       })
       .catch(err => {
         $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
         $('.game-image-thumbnail').attr('src', "");
+        $('.submitInfo').prop('disabled', true);
       })
   }
 }
@@ -444,7 +446,6 @@ function updateStreamInfo(status, game) {
   }
   
   $.ajax(settings).done(function (response) {
-    //TODO Add validated Img before close
     $('.modal').css('display', 'none');
     getTitleAndGame();
   });
