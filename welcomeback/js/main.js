@@ -434,9 +434,9 @@ function updateStreamInfo(status, game) {
     "url": `https://api.twitch.tv/kraken/channels/${userID}`,
     "method": "PUT",
     "headers": {
-      "Client-ID": "awedukrko4ea7nyzbr33niem0zvghx",
+      "Client-ID": clientID,
       "Accept": "application/vnd.twitchtv.v5+json",
-      "Authorization": "OAuth ix7vzx6dq6k3k19xxlgow3tthq09lq",
+      "Authorization": "OAuth " + userAuth.substring(0,7),
       "Content-Type": "application/x-www-form-urlencoded",
     },
     "data": {
