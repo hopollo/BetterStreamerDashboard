@@ -436,7 +436,7 @@ function updateStreamInfo(status, game) {
     "headers": {
       "Client-ID": clientID,
       "Accept": "application/vnd.twitchtv.v5+json",
-      "Authorization": "OAuth " + userAuth.substring(0,7),
+      "Authorization": "OAuth " + userAuth.substring(7),
       "Content-Type": "application/x-www-form-urlencoded",
     },
     "data": {
