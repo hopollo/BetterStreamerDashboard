@@ -339,8 +339,8 @@ function addStreamEvent(name,type) {
         $('.events').prepend(`
           <div class="event-container">
             <div class="event-author-info">
-            <a href="https://www.twitch.tv/${name}"><img class="event-author-avatar" src=""></a>
-            <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}">${name}</a></div>
+            <a href="https://www.twitch.tv/${name}" target="_blank"><img class="event-author-avatar" src=""></a>
+            <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}" target="_blank">${name}</a></div>
             <div class="event-author-type">${type}</div>
             <div class="event-author-timer">${timestamps}<div>
           </div>
