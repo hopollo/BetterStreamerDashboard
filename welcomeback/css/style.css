@@ -100,6 +100,17 @@ a:visited { color: var(--link-color); }
   width: 60%;
 }
 
+.streamInfo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.game-image-thumbnail {
+  max-height: 100px;
+  max-height: 100px;
+}
+
 .options { display: block; }
 
 /* TODO Change the .new to a bonus class for element:after */
