@@ -420,7 +420,7 @@ function getGameImage() {
       })
       .catch(err => {
         $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
-        $('.game-image-thumbnail').attr('src', "");
+        $('.game-image-thumbnail').attr('src', "https://risibank.fr/cache/stickers/d1097/109776-full.png");
         $('.submitInfo').prop('disabled', true);
       })
   }
