@@ -121,7 +121,6 @@ function getVideo() {
 
 function getClips() {
   var limit = 3;
-  var period = "all";
   
   var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
@@ -241,7 +240,7 @@ function showInfo() {
   $('.submitInfo').click(() => {
     var titleToUpdate = $('.titleLabel').val();
     var gameToUpdate = $('.gameLabel').val();
-    
+
     //updateStreamInfo(titleToUpdate, gameToUpdate, suffixTitleToUpdate, titleSeparator);
     updateStreamInfo(titleToUpdate, gameToUpdate);
   });
@@ -410,6 +409,8 @@ function getGameImage() {
   }
 
   if (currentGame != null) {
+    $('.game-image-thumbnail').attr('src', "https://i.stack.imgur.com/FhHRx.gif");
+
     fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
       .then(res => res.json())
       .then(data => {
