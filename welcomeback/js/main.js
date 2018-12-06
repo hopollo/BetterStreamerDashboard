@@ -122,19 +122,7 @@ function getVideo() {
 function getClips() {
   var limit = 3;
   var period = "all";
-  //TODO CHANGE THAT TO AVOID KILL/REFRESH THE WINDOW
-  $('.clips').replaceWith(`
-  <div class="module clips">
-    <div class="handle"></div>
-    <div class="clipsList">
-        <div class="defaultClip">
-          <div style="display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i><div>
-          <h1 style="color:black;">No clips yet</h1>
-        </div>
-    </div>
-  </div>`
-  );
-
+  
   var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   var token = {
@@ -212,7 +200,7 @@ function getSettings() {
       <form class="streamInfo">
         <ul class="options">
           <li><label>Title</label></li>
-          <li><input class="titleLabel" type="text"> <i class="fas fa-undo" style="cursor:pointer;"></i></li>
+          <li><input class="titleLabel" type="text"> <i class="fas fa-undo" style="cursor:pointer;"></i></li>          
           <li><label>Game</label></li>
           <li><input class="gameLabel" type="text"> <i class="game-label-state"></i></li>
         </ul>
@@ -238,18 +226,23 @@ function showInfo() {
   $('.infos-modal').css('display', 'block');
   $('.titleLabel').attr('placeholder', 'Your stream title...');
   $('.gameLabel').attr('placeholder', 'Your stream game...');
-  $('.gameLabel').keyup(() => {
-    setTimeout(() => {
-      getGameImage();
-    }, 1500);
-  });
+  var i = 0;
+  $('.gameLabel').keydown(() => { i++; setTimeout(() => { getGameImage(); }, i * 100); });
 
   $('.fa-undo').click(() => { $('.titleLabel').val(''); })
+
+  //var titleSeparator = $('.titleSeparator').val();
+  //var suffixTitleToUpdate = ($('.titleSuffix').val()).length < 1 && (titleSeparator.length > 0) ? $('.titleSuffix').val($('.titleLabel').val().split(`${titleSeparator}`)[1]) : $('.titleSuffix').val();
+  //var titleToUpdate = ($('.titleLabel').val()).length > 0 && (titleSeparator.length > 0) ? $('.titleLabel').val($('.titleLabel').val().split(`${titleSeparator}`)[0]) : $('.titleLabel').val();
+  //var suffixTitleToUpdate = $('.titleSuffix').val();
+
+  
 
   $('.submitInfo').click(() => {
     var titleToUpdate = $('.titleLabel').val();
     var gameToUpdate = $('.gameLabel').val();
-
+    
+    //updateStreamInfo(titleToUpdate, gameToUpdate, suffixTitleToUpdate, titleSeparator);
     updateStreamInfo(titleToUpdate, gameToUpdate);
   });
 
@@ -259,11 +252,12 @@ function showInfo() {
 }
 
 function lockItems() {
-  //TODO Fix Module is not locked back after lock icon is shown closed
   $('.handle').css('display', 'none');
   var img = '<span class="fas fa-lock"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
+
+  $('.module').draggable({disabled: true});
   
   $('.lock').click(() => { unlockItems(); });
 }
@@ -273,7 +267,7 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('.module').draggable({ iframeFix: true, cursor: "move", containment : ".center" });
+  $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
@@ -286,6 +280,16 @@ function unlockItems() {
   });
 
   $('.lock').click(() => { lockItems(); });
+}
+
+function saveItemData() {
+  //TODO ADD cookies to save user choises;
+  //gets Enabled windows + positions
+  document.cookie = "";
+}
+
+function readItemData() {
+  //TODO ADD cookes reading info and redisplay them
 }
 
 function getViewers() {
@@ -426,8 +430,8 @@ function getGameImage() {
   }
 }
 
+//function updateStreamInfo(status, game, suffix, separator) {
 function updateStreamInfo(status, game) {
-
   var settings = {
     "async": true,
     "crossDomain": true,
@@ -445,7 +449,7 @@ function updateStreamInfo(status, game) {
     }
   }
   
-  $.ajax(settings).done(function (response) {
+  $.ajax(settings).done(() => {
     $('.modal').css('display', 'none');
     getTitleAndGame();
   });
@@ -467,6 +471,7 @@ function getUptime() {
 }
 
 function getActivities() {
+  //TODO Integrate StreamElementsInfo
   //var url = `https://api.streamelements.com/kappa/v2/activities/${displayName}`; 
   var url = `https://api.streamelements.com/kappa/v2/channels/me`; 
   var token = {
@@ -491,7 +496,17 @@ function createVideo() {
 }
 function createClips() {
   modules.twitchClips = true;
-  $('.center').append(`<div class="module clips"></div>`);
+  $('.center').append(`
+    <div class="module clips">
+      <div class="handle"></div>
+      <div class="clipsList">
+        <div class="defaultClip">
+          <div style="display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i><div>
+          <h1 style="color:black;">No clips yet</h1>
+        </div>
+      </div>
+    </div>
+  `);
   getClips();
 }
 function createEvents() {
