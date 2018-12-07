@@ -120,8 +120,6 @@ function getVideo() {
 }
 
 function getClips() {
-  var limit = 3;
-  
   var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   var token = {
@@ -225,8 +223,8 @@ function showInfo() {
   $('.infos-modal').css('display', 'block');
   $('.titleLabel').attr('placeholder', 'Your stream title...');
   $('.gameLabel').attr('placeholder', 'Your stream game...');
-  var i = 0;
-  $('.gameLabel').keydown(() => { i++; setTimeout(() => { getGameImage(); }, i * 100); });
+  var typingGame;
+  $('.gameLabel').keyup(() => { clearTimeout(typingGame); typingGame = setTimeout(() => { getGameImage(); }, 1500);});
 
   $('.fa-undo').click(() => { $('.titleLabel').val(''); })
 
