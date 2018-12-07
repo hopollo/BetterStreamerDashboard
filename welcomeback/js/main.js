@@ -35,6 +35,7 @@ function authenticate() {
 
   clientID = decodedJWT.aud;
   userAuth = "Bearer " + token;
+  userOAuth = "OAuth " + token;
   userID = decodedJWT.sub;
   displayName = decodedJWT.preferred_username;
   /*
@@ -439,7 +440,7 @@ function updateStreamInfo(status, game) {
     "headers": {
       "Client-ID": clientID,
       "Accept": "application/vnd.twitchtv.v5+json",
-      "Authorization": "OAuth " + userAuth.substring(7),
+      "Authorization": userOAuth,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     "data": {
