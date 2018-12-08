@@ -60,7 +60,6 @@ var modules = {
   twitchViews: true,
   twitchViewers: true,
   twitchFollowers: true,
-  streamElementsAcitivites: false,
 }
 
 function getStatic() {
@@ -73,20 +72,20 @@ function getStatic() {
   getUserAvatar();
   createChat();
   createEvents();
-  createFollowers();
   createUptime();
   createViewers();
   createViews();
+  createFollowers();
 }
 
 function updateModules() {
   getTitleAndGame();
   getFollowers();
-
+  
   if (modules.twitchClips) { getClips(); }
   if (modules.twitchViews) { getViews(); }
   if (modules.twitchViewers) { getViewers(); }
-  if (modules.getActivities) { getActivities(); }
+  if (modules.twitchEvents) { getActivities(); }
 }
 
 function getUserAvatar() {
@@ -188,6 +187,8 @@ function getSettings() {
   $('.options').append(`<li><input type="checkbox" class="options-item-viewers" checked> Twitch Viewers</input></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
 
+  $('.options').append(`<li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a><span class="new">new</span></li>`);
+  $('.options-item-streamElementsInfo').val(readData());
   $('.options').append('<span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
 
@@ -217,6 +218,10 @@ function showPreferences() {
 
   $('.close').click(() => {
     $('.modal').css('display', 'none');
+    if ($('.options-item-streamElementsInfo').val() != null || $('.options-item-streamElementsInfo').val() > 40) { 
+      var jwt = $('.options-item-streamElementsInfo').val();
+      saveData(jwt);
+    }
   });
 }
 
@@ -280,14 +285,16 @@ function unlockItems() {
   $('.lock').click(() => { lockItems(); });
 }
 
-function saveItemData() {
+function saveData(jwt) {
   //TODO ADD cookies to save user choises;
-  //gets Enabled windows + positions
-  document.cookie = "";
+  document.cookie = `SEToken=${jwt}; expires=Thu, 18 Dec 2019 12:00:00 UTC`;
 }
 
-function readItemData() {
+function readData() {
   //TODO ADD cookes reading info and redisplay them
+  var jwt = document.cookie;
+  jwt = jwt.split("=")[1];
+  return jwt;
 }
 
 function getViewers() {
@@ -306,8 +313,6 @@ function getViewers() {
 
 function getFollowers() {
   modules.followers = true;
-  var eventType = "Follow";
-  var totalFollowers;
   var token = {
     mode: 'cors',
     headers: { 'Authorization' : userAuth}
@@ -317,50 +322,36 @@ function getFollowers() {
     .then(res => res.json())
     .then(data => {
       if (modules.twitchFollowers) { 
-        totalFollowers = data.total;
+        var totalFollowers = data.total;
+        $('.followers').replaceWith(`<div class="followers"><span class="fas fa-heart"> ${totalFollowers}</span></div>`);
       }
-
-      $.get(`https://decapi.me/twitch/followers/${displayName}`, (follower) => {
-      var img = '<span class="fas fa-heart"></span>';
-      $('.followers').replaceWith(`<div class="followers">${img} ${totalFollowers} <a href="https://www.twitch.tv/${follower}" target="_blank">(${follower})</a></div>`);
-      addStreamEvent(follower, eventType);
     });
-  });
 }
 
-var followList = [];
+var eventList = [];
 
-function addStreamEvent(name,type) {
-  var timestamps = new Date();
-  var hours = (timestamps.getHours() < 10 ? '0': '') + timestamps.getHours();
-  var minutes = (timestamps.getMinutes() < 10 ? '0': '') + timestamps.getMinutes();
-  timestamps = `${hours}h${minutes}`;
-  
-  if (followList.includes(name)) { return }
+function addStreamEvent(avatar, name, type, id, message) {
 
-  followList.push(name);
+  if (eventList.includes(id)) { return; }
 
-  var token = {
-    mode: 'cors',
-    headers: { 'Authorization' : userAuth}
-  };
+  eventList.push(id);
 
-  fetch(`https://api.twitch.tv/helix/users?login=${name}`, token)
-    .then(res => res.json())
-    .then(data => {
-      var followerAvatar = data.data[0].profile_image_url;
-        $('.events').prepend(`
-          <div class="event-container">
-            <div class="event-author-info">
-            <a href="https://www.twitch.tv/${name}" target="_blank"><img class="event-author-avatar" src=""></a>
-            <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}" target="_blank">${name}</a></div>
-            <div class="event-author-type">${type}</div>
-            <div class="event-author-timer">${timestamps}<div>
-          </div>
-        </div>
-        `);
-        $('.event-author-avatar:first').attr('src', followerAvatar);
-    });
+  if (message == null || message.length < 1) { 
+    message = ""; 
+  } else { 
+    message = `<i class="fas fa-quote-left" style="color:grey;"></i> ${message} <i class="fas fa-quote-right" style="color:grey;"></i>`;
+  }
+
+  $('.events').append(`
+    <div class="event-container">
+      <div class="event-author-info">
+        <img class="event-author-avatar" src="">
+        <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}" target="_blank">${name}</a></div>
+        <div class="event-author-type">${type}</div>
+        <div class="event-author-message">${message}</div>
+      </div>
+    </div>`);
+  $('.event-author-avatar:last').attr('src', avatar);
 }
 
 function getViews() {
@@ -471,24 +462,58 @@ function getUptime() {
 }
 
 function getActivities() {
-  //TODO Integrate StreamElementsInfo
-  //var url = `https://api.streamelements.com/kappa/v2/activities/${displayName}`; 
-  var url = `https://api.streamelements.com/kappa/v2/channels/me`; 
+  modules.twitchEvents = true;
+  var SEJWTToken = $('.options-item-streamElementsInfo').val();
+  
+  if (SEJWTToken == null) { return; }
+
+  function parseJwt (SEJWTToken) {
+    var base64Url = SEJWTToken.split('.')[1];
+    var base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(window.atob(base64));
+  };
+
+  var decodedJWT = parseJwt(SEJWTToken);
+
+  var SEChannelID = decodedJWT.channel;
+
+  // Credits to LX from SE team
+  var url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow","tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
   var token = {
     headers: {
-      'Client-ID' : '5k3eXSKds9eBgcwlmzhe6vmEEFaejNOr0GzPIMehfVa5zF1Z'
+      'Host' : 'api.streamelements.com',
+      'Authorization' : 'Bearer ' + SEJWTToken
     }
   };
 
   fetch(url, token)
     .then(res => res.json())
-    .then(data => console.log(data))
-    .then(err => console.log(err));
+    .then(data => {
+      var results = data.length;
+
+      console.log(results);
+
+      if (results != 0) {
+        $('.defaultEvent').remove();
+
+        for (var i=0, len=results; i < len; i++) {
+          var eventAvatar = data[i].data.avatar;
+          var eventAuthor = data[i].data.username;
+          var eventType = data[i].type;
+          if (eventType == "tip") {
+            var amount = data[i].data.amount;
+            var currency = data[i].data.currency;
+            eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;
+          }
+          var message = data[i].data.message;
+          var eventID = data[i]._id;
+        
+          addStreamEvent(eventAvatar, eventAuthor, eventType, eventID, message);
+        }
+      }
+    })
 }
 
-function getLastHighLight() {
-  var url = `https://decapi.me/twitch/highlight/${displayName}`;
-}
 
 function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
@@ -509,8 +534,12 @@ function createClips() {
   `);
   getClips();
 }
+
 function createEvents() {
+  modules.twitchEvents = true;
   $('.center').append(`<div class="module events"></div>`);
+  $('.events').append(`<div class="defaultEvent">No events yet</div>`);
+  getActivities();
 }
 function createChat() {
   $('.center').append(`<div class="module chat"></div>`);
@@ -536,6 +565,7 @@ function createFollowers() {
   getFollowers();
 }
 
+
 function removeVideo() {
   modules.twitchVideo = false;
   $('.video').remove();
@@ -545,6 +575,7 @@ function removeClips() {
   $('.clips').remove();
 }
 function removeEvents() {
+  eventList = [];
   modules.twitchEvents = false;
   $('.events').remove();
 }
@@ -573,7 +604,7 @@ function logged() {
   $('.loading').fadeOut(400, () => { $('.loading').remove(); });
   $('.login').fadeOut(400, () => { $('.login').remove(); });
   $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
-
+  
   getStatic();
   getSettings();
   lockItems();
