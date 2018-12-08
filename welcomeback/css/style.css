@@ -212,49 +212,45 @@ iframe {
  style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
 */
 
-.event-container {
-  height:10%;
-  width:100%;
-  background:white;
-  border-radius:5px;
-  border:1px solid #b9b9b9;
+.events {
+  overflow: auto;
 }
 
-.event-container:nth-child(n+11) { display: none; }
+.event-container {
+  height: 10%;
+  width: 100%;
+  background:white;
+  border-radius: 5px;
+  border: 1px solid #b9b9b9;
+}
 
 .event-author-info {
   height: 100%;
   width: 100%;
   display: grid;
-  position: relative;
-  grid-template-columns: "20% 70 10%";
+  grid-template-columns: 60px auto auto;
+  grid-template-rows: 50% 50%;
+  grid-column-gap: 5px; 
   grid-template-areas:
-  "authorLogo authorName authorTimer"
-  "authorLogo authorType .";
+  "authorLogo authorName authorMessage"
+  "authorLogo authorType authorMessage"
 }
 
 .event-author-avatar {
   grid-area: authorLogo;
-  position: absolute;
-  top: 50%;
-  left: 5%;
-  transform: translateY(-50%);
   border-radius: 5%;
-  height: 90%;
+  height: 100%;
   width: auto;
 }
 
-.event-author-name { grid-area: authorName; }
-.event-author-type { grid-area: authorType; bottom: 5;}
+.event-author-name { grid-area: authorName; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.event-author-type { grid-area: authorType; }
+.event-author-message { grid-area: authorMessage; overflow: auto; text-align: right; margin-right: 5px;}
 
-.event-author-name, .event-author-type { position: absolute; left: -45%; }
+.fa-quote-right, .fa-quote-left { font-size: 8px;}
 
 .event-author-timer {
   grid-area: authorTimer;
-  color: grey;
-  width: auto;
-  position: absolute;
-  right: 5px;
 }
 
 .clipTitle, .clipCreatorName {
