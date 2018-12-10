@@ -159,12 +159,14 @@ function getSettings() {
   
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input><span class="new">new</span></li>`);
   $('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input><span class="new">new</span></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchEvents"> Twitch Events</input><span class="new">new</span></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat"> Twitch Chat</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-uptime"> Twitch Uptime</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-views"> Twitch Views</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-viewers"> Twitch Viewers</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers"> Twitch Followers</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchEvents" checked> Twitch Events</input><span class="new">new</span></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-views" checked> Twitch Views</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-viewers" checked> Twitch Viewers</input></li>`);
+  $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
+
+  //$('.options-item-twitchChat .options-item-Events .options-item-Uptime .options-item-Views .options-item-Viewers .options-item-Followers').prop('checked');
 
   $('.options').append(`<li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a><span class="new">new</span></li>`);
   $('.options').append('<span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
@@ -275,6 +277,8 @@ function saveData(data) {
 function readData() {
   var cookieData = document.cookie;
 
+  if (cookieData == '') { welcome() }
+
   $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
@@ -329,7 +333,6 @@ function getFollowers() {
 var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
-
   if (eventList.includes(id)) { return; }
 
   eventList.push(id);
@@ -491,7 +494,6 @@ function getActivities() {
 
       if (results != 0) {
         $('.defaultEvent').remove();
-        console.log(data);
         for (var i=0, len=results; i < len; i++) {
           var eventAvatar = data[i].data.avatar;
           var eventAuthor = data[i].data.username;
@@ -594,6 +596,28 @@ function removeViewers() {
 function removeFollowers() {
   modules.followers = false;
   $('.followers').remove();
+}
+
+function welcome() {
+  $('.settings').hide();
+  $('.center').append(`<div class="welcome" 
+  style="
+  position: absolute; 
+  top:50%; left:50%; 
+  transform:translate(-50%,-50%);
+  border-right: .20em solid red;
+  background: #2c2c2c;
+  letter-spacing: .15em;
+  "></div>`)
+  $('.welcome').append(`<h1 style="color:white;">Hey ${displayName}, welcome to BetterStreamerDashboard aka BSD ! Let's customize your dashboard !</h1>`);
+  $('.welcome').append(`<button class="startButton">Start</button>`);
+  $('.startButton').click(() => {
+    showPreferences();
+  });
+  $('.close').click(() => {
+    $('.welcome').remove();
+    location.reload();
+  });
 }
 
 function logged() {
