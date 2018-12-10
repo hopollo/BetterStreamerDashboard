@@ -295,10 +295,9 @@ iframe {
 /* IPADs */
 /* LANDSCAPE */
 @media only screen and (max-width : 1400px) and (max-height : 1024px) {
-  .module { width: calc(100vw/2); }
+  .module { width: 50vw; }
   .settings { grid-column-gap: 5px; }
-  .preferences, .lock { width: 85px; }
-  .module { width: calc(100vw/2); }
+  .events, .video, .clips { height: 50vh; }
 }
 
 /* PORTRAIT */
@@ -315,56 +314,30 @@ iframe {
 /* LANDSCAPE */
 @media only screen and (max-width : 850px) and (max-height : 420px) {
   body { overflow: hidden;}
-  .top {height: 10vh;}
-  .userLogo { height: 30px; width : 30px; }
-  .settings {  height: 30px; grid-column-gap: 0; }
-  .streamTitle { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-  .center { 
-  height: 85vh;
-  display: grid;
-  grid-template-areas:
-  "chat video"
-  "chat clips";
-  }
-  .chat { display: grid; grid-area: chat; height: 100%; width: 70vw; }
-  .video { display: grid; grid-area: video; height: 42.5vh; width: 30vw; }
-  .clips { display: grid; grid-area: clips; height: 42.5vh; width: 30vw; }
-  .clipsList li:nth-child(1n+2) { display: none; position: relative; }
+  .top { height: 7vh; display: flex;}
+  .streamTitle { width: 70%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+  .center { height: 87vh;}
+  .chat { height: 100%;}
+  .video, .events, .clips { height: 50%; }
   .clipsList li a img { position: absolute; top: 0; left: 0; height: 100%; width: 100%; }
   .clipTitle, .clipCreatorName { color: white; position: absolute;}
-  .clipTitle { bottom: 0; left: 0}
-  .clipCreatorName { top: 0; left: 0;}
-  .bottom { height: 5vh;}
+  .clipTitle { bottom: 0; left: 0 }
+  .clipCreatorName { top: 0; left: 0; }
+  .bottom { height: 6vh; }
 }
 
 /* PORTRAIT */
 @media only screen and (max-width : 450px) and (max-height : 850px) {
   /* TODO tweak tchat + video display too small and left/right to up/down */
-  :root { --top-height: 40px; }
-  .top {
-    height: var(--top-height);
-    grid-template-columns: var(--top-height) auto auto auto auto;
-  }
-  .settings { grid-column-gap: 5px; }
+  .top { height: 5vh; }
   .streamTitle { display: none; }
-  .center {
-    display: grid;
-    grid-template-columns: repeat(2, 1f);
-    grid-template-areas:
-    "chat chat"
-    "video clips";
-  }
+  .center { display: flex; flex-flow: row wrap; }
   
-  .chat {
-    grid-area: chat;
-    height: 70vh;
-    width: 100%;
-  }
-  .clips {
-    grid-area: clips;
-    height: 20.5vh;
-  }
-  .clipsList li:nth-child(1n+2) { display: none; position: relative;}
+  .chat { height: 65vh; width: 100vw; }
+  .clips, .events, .video { height: 25vh; }
+  .events { width: 100vw; }
+  .clips, .video { width: 50vw; }
+
   .clipsList li a img {
     position: absolute;
     top: 0;
@@ -377,7 +350,7 @@ iframe {
   .clipCreatorName { top: 0; left: 0;}
   .video {
     height: 20.5vh;
-    grid-area: video;
   }
   .views { display: none; }
+  .bottom { height: 5vh;}
 }
