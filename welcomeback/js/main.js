@@ -277,7 +277,16 @@ function saveData(data) {
 function readData() {
   var cookieData = document.cookie;
 
-  if (cookieData == '') { welcome() }
+  if (cookieData == '' || 
+      !cookieData.includes("Video") && 
+      !cookieData.includes("Clips") && 
+      !cookieData.includes("Events") && 
+      !cookieData.includes("Chat") && 
+      !cookieData.includes("Uptime") && 
+      !cookieData.includes("Views") && 
+      !cookieData.includes("Viewers") && 
+      !cookieData.includes("Followers"))
+  { welcome(); return;}
 
   $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
@@ -602,8 +611,8 @@ function welcome() {
   $('.settings').hide();
   $('.center').append(`<div class="welcome" 
   style="
-  position: absolute; 
-  top:50%; left:50%; 
+  position: absolute;
+  top:50%; left:50%;
   transform:translate(-50%,-50%);
   border-right: .20em solid red;
   background: #2c2c2c;
