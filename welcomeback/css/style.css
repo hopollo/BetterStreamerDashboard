@@ -327,13 +327,13 @@ iframe {
 /* PORTRAIT */
 @media only screen and (max-width : 450px) and (max-height : 850px) {
   /* TODO tweak tchat + video display too small and left/right to up/down */
-  .top { height: 5vh; }
   .streamTitle { display: none; }
   .center { display: flex; flex-flow: row wrap; }
   
-  .chat { height: 65vh; width: 100vw; }
+  .chat { height: 62vh; width: 100vw; }
   .clips, .events, .video { height: 25vh; }
   .events { width: 100vw; }
+  .event-container { height: 20%;}
   .clips, .video { width: 50vw; }
 
   .clipsList li a img {
@@ -350,5 +350,4 @@ iframe {
     height: 20.5vh;
   }
   .views { display: none; }
-  .bottom { height: 5vh;}
 }
