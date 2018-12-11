@@ -253,14 +253,19 @@ function unlockItems() {
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
   $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
+  $('.module').resizable();
+  $('.ui-resizable-se').css({'height':'32px', 'width':'32px'});
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
-  $('.module').on('touchmove', function(e) {
+  $('.module').on('touchmove', (e) => {
     var xPos = e.changedTouches[0].clientX;
-    var offset = $('.center').width() - $('.handle').width();
+    console.log(e.changedTouches)
+    var window = (e.changedTouches[0].target.className).split(' ')[1] || e.changedTouches[0].target.offsetParent.className.split(' ')[1];
+    var windowWidth = e.changedTouches[0].target.clientWidth;
+    var offset = $('.center').width() - windowWidth;
     if (xPos > 0 && xPos < offset) {
-      $('.module').css('left', xPos);
+      $(`.${window}`).css('left', xPos);
     }
   });
 
