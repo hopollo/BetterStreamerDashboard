@@ -549,7 +549,7 @@ function createClips() {
 
 function createEvents() {
   modules.twitchEvents = true;
-  $('.center').append(`<div class="module events"></div>`);
+  $('.center').append(`<div class="module events"><div class="handle ui-widget-content"></div></div>`);
   $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">No events yet or make sure you entered the correct StreamElements JWT Token in settings.</div>`);
   getActivities();
 }
