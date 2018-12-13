@@ -25,11 +25,7 @@ body {
 
 li { list-style: none; }
 
-a {
-  text-decoration: none;
-  color: var(--link-color);
-}
-
+a { text-decoration: none; color: var(--link-color); }
 a:hover,
 a:visited { color: var(--link-color); }
 
@@ -69,13 +65,9 @@ a:visited { color: var(--link-color); }
   cursor: pointer;
 }
 
-.streamGame a {
-  color: white;
-}
+.streamGame a { color: white; }
 
-.fa-pen {
-  cursor: pointer;
-}
+.fa-pen { cursor: pointer; }
 
 .modal {
   display: none;
@@ -106,10 +98,7 @@ a:visited { color: var(--link-color); }
   align-items: center;
   flex-direction: column;
 }
-.game-image-thumbnail {
-  max-height: 100px;
-  max-height: 100px;
-}
+.game-image-thumbnail { max-height: 100px; max-height: 100px; }
 
 .options { display: block; }
 
@@ -193,7 +182,6 @@ a:visited { color: var(--link-color); }
 }
 
 iframe {
-  height: calc(var(--center-height) - 10px);
   width: 100%;
   height: 100%;
 }
@@ -212,9 +200,7 @@ iframe {
  style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
 */
 
-.events {
-  overflow: auto;
-}
+.events { overflow: auto; }
 
 .event-container {
   height: 10%;
@@ -249,14 +235,9 @@ iframe {
 
 .fa-quote-right, .fa-quote-left { font-size: 8px;}
 
-.event-author-timer {
-  grid-area: authorTimer;
-}
+.event-author-timer { grid-area: authorTimer; }
 
-.clipTitle, .clipCreatorName {
-  display: flex;
-  color: black;
-}
+.clipTitle, .clipCreatorName { display: flex; color: black; }
 
 .bottom {
   display: none;
@@ -272,14 +253,16 @@ iframe {
   "views uptime followers viewers";
 }
 
-.followers a {
-  color: white;
-}
-
+.followers a { color: white; }
 .views { grid-area: views; }
 .uptime { grid-area: uptime; }
 .followers { grid-area: followers; }
 .viewers { grid-area: viewers; }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(720deg); }
+}
 
 /* Safari */
 @-webkit-keyframes spin {
@@ -287,26 +270,21 @@ iframe {
   100% { -webkit-transform: rotate(360deg); }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(720deg); }
-}
-
 /* IPADs */
 /* LANDSCAPE */
-@media only screen and (max-width : 1400px) and (max-height : 1024px) {
+@media only screen and (max-width : 1300px) and (max-height : 900px) and (orientation : LANDSCAPE) {
   .module { width: 50vw; }
   .settings { grid-column-gap: 5px; }
+  .event-container { height: 12.5%; }
   .event-author-name, .event-author-type { margin-left: 15px;}
   .events, .video, .clips { height: 50vh; }
 }
 
 /* PORTRAIT */
-@media only screen and (max-width : 1050px) and (max-height : 1400px) {
-  .module { width: calc(100vw/2); }
-  .event-container {height: 15%;}
-  .settings { grid-column-gap: 5px; }
-  .preferences, .lock { width: 50px; }
+@media only screen and (max-width : 900px) and (max-height : 1300px) and (orientation : PORTRAIT) {
+  .module { width: 50vw; }
+  .event-container { height: 6.66%; }
+  .settings { grid-column-gap: 5px; margin: 10px; }
 }
 
 /* POPULAR smartphones */
@@ -318,22 +296,6 @@ iframe {
   .center { height: 87vh;}
   .chat { height: 100%;}
   .event-container { height: 20%;}
-  .video, .events, .clips { height: 50%; }
-  .clipsList li a img { position: absolute; top: 0; left: 0; height: 100%; width: 100%; }
-  .clipTitle, .clipCreatorName { color: white; position: absolute;}
-  .clipTitle { bottom: 0; left: 0 }
-  .clipCreatorName { top: 0; left: 0; }
-  .bottom { height: 6vh; }
-}
-
-/* POPULAR smartphones */
-/* LANDSCAPE */
-@media only screen and (max-width : 850px) and (max-height : 420px) {
-  body { overflow: hidden;}
-  .top { height: 7vh; display: flex;}
-  .streamTitle { width: 70%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-  .center { height: 87vh;}
-  .chat { height: 100%;}
   .video, .events, .clips { height: 50%; }
   .clipsList li a img { position: absolute; top: 0; left: 0; height: 100%; width: 100%; }
   .clipTitle, .clipCreatorName { color: white; position: absolute;}
@@ -364,8 +326,6 @@ iframe {
   .clipTitle, .clipCreatorName { color: white; position: absolute;}
   .clipTitle { bottom: 0; left: 0}
   .clipCreatorName { top: 0; left: 0;}
-  .video {
-    height: 20.5vh;
-  }
+  .video { height: 20.5vh; }
   .views { display: none; }
 }
