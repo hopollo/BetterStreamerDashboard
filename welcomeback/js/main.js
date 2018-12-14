@@ -267,7 +267,7 @@ function unlockItems() {
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
   $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
-  $('.module').resizable({disabled: false, ghost: true, containment: ".center" });
+  $('.module').resizable({disabled: false, containment: ".center" });
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
