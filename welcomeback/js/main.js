@@ -68,7 +68,7 @@ function updateModules() {
   if (modules.twitchClips) { getClips(); }
   if (modules.twitchViews) { getViews(); }
   if (modules.twitchViewers) { getViewers(); }
-  if (modules.twitchEvents) { getActivities(); }
+  if (modules.twitchEvents) { getEvents(); }
 }
 
 function getUserAvatar() {
@@ -156,20 +156,33 @@ function getSettings() {
   
   $('.center').append(`<div id="settings" class="modal settings-modal"><div class="modal-content settings-content"><span class="close">&times;</span></div></div>`);
   $('.settings-content').append('<ul class="options"></ul>');
-  
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchVideo"> Twitch Video</input><span class="new">new</span></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchClips"> Twitch Clips</input><span class="new">new</span></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchEvents" checked> Twitch Events</input><span class="new">new</span></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchChat" checked> Twitch Chat</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-uptime" checked> Twitch Uptime</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-views" checked> Twitch Views</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-viewers" checked> Twitch Viewers</input></li>`);
-  $('.options').append(`<li><input type="checkbox" class="options-item-twitchFollowers" checked> Twitch Followers</input></li>`);
+  $('.options').append(`
+  <div class="twitch-options">
+    <i class="fab fa-twitch options-family"></i>
+    <li><input type="checkbox" class="options-item-twitchVideo"> Video</input></li>
+    <li><input type="checkbox" class="options-item-twitchClips"> Clips</input></li>
+    <li><input type="checkbox" class="options-item-twitchEvents" checked> Events</input></li>
+    <li><input type="checkbox" class="options-item-twitchChat" checked> Chat</input></li>
+    <li><input type="checkbox" class="options-item-uptime" checked> Uptime</input></li>
+    <li><input type="checkbox" class="options-item-views" checked> Views</input></li>
+    <li><input type="checkbox" class="options-item-viewers" checked> Viewers</input></li>
+    <li><input type="checkbox" class="options-item-twitchFollowers" checked> Followers</input></li>
+  </div>
+  <div class="others-options">
+  <i class="fas fa-key options-family"></i>
+    <li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it here</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
+  </div>
+  <div class="optionnals-options">
+  <i class="fas fa-cogs options-family"></i>
+    <li>
+      <p>Ligth-mode :</p>
+      <input type="radio" id="classic" name="light" value="light" class="test1"> <label for="classic">Classic</label>
+      <input type="radio" id="auto" name="light" value="auto" class="test1" checked> <label for="auto">Auto</label>
+      <input type="radio" id="dark" name="light" value="dark" class="test1"> <label for="dark">Dark</label>
+    </li>
+    <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>
+  </div>`);
 
-  //$('.options-item-twitchChat .options-item-Events .options-item-Uptime .options-item-Views .options-item-Viewers .options-item-Followers').prop('checked');
-
-  $('.options').append(`<li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a><span class="new">new</span></li>`);
-  $('.options').append('<span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>');  
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
 
   /* STREAM INFO PART */
@@ -242,7 +255,8 @@ function lockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
 
-  $('.module').draggable({disabled: true});
+  $('.module').draggable({ disabled: true });
+  $(".module").resizable({ disabled: true });
   
   $('.lock').click(() => { unlockItems(); });
 }
@@ -253,8 +267,7 @@ function unlockItems() {
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
   $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
-  $('.module').resizable();
-  $('.ui-resizable-se').css({'height':'32px', 'width':'32px'});
+  $('.module').resizable({disabled: false, ghost: true, containment: ".center" });
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
@@ -347,8 +360,9 @@ function getFollowers() {
 var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
-  if (eventList.includes(id)) { return; }
+  if (eventList.includes(id)) { console.log(`Event ${id} already exising`); return; }
 
+  console.log(`adding new event ${id}`);
   eventList.push(id);
 
   if (message == null || message.length < 1) {
@@ -414,7 +428,7 @@ function getGameImage() {
   }
 
   if (currentGame != null) {
-    $('.game-image-thumbnail').attr('src', "https://i.stack.imgur.com/FhHRx.gif");
+    $('.game-image-thumbnail').attr('src', "https://i.stack.imFgur.com/FhHRx.gif");
 
     fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
       .then(res => res.json())
@@ -476,8 +490,7 @@ function getUptime() {
   });
 }
 
-function getActivities() {
-  modules.twitchEvents = true;
+function getEvents() {
   var SEJWTToken = $('.options-item-streamElementsInfo').val();
 
   if (SEJWTToken == null || SEJWTToken < 40) { return; }
@@ -493,7 +506,7 @@ function getActivities() {
   var SEChannelID = decodedJWT.channel;
 
   // Credits to LX from SE team
-  var url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow","tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
+  var url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow", "tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
   var token = {
     headers: {
       'Host' : 'api.streamelements.com',
@@ -549,9 +562,12 @@ function createClips() {
 
 function createEvents() {
   modules.twitchEvents = true;
-  $('.center').append(`<div class="module events"><div class="handle ui-widget-content"></div></div>`);
+  $('.center').append(`
+    <div class="module events">
+      <div class="handle"></div>
+    </div>`);
   $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">No events yet or make sure you entered the correct StreamElements JWT Token in settings.</div>`);
-  getActivities();
+  getEvents();
 }
 function createChat() {
   $('.center').append(`<div class="module chat"></div>`);
@@ -610,6 +626,18 @@ function removeViewers() {
 function removeFollowers() {
   modules.followers = false;
   $('.followers').remove();
+}
+
+function applyClassicMode() {
+
+}
+
+function applyAutoMode() {
+
+}
+
+function applyDarkMode() {
+
 }
 
 function welcome() {
@@ -701,6 +729,20 @@ function logged() {
           removeFollowers();
           break;
       }
+    }
+  });
+
+  $('input:radio').change(function() {
+    switch(this['id']) {
+      case 'classic':
+        applyClassicMode();
+        break;
+      case 'auto':
+        applyAutoMode();
+        break;
+      case 'dark':
+        applyDarkMode();
+        break;
     }
   });
 
