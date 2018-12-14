@@ -7,13 +7,17 @@
 body {
   font-family: 'Titillium Web', sans-serif;
   background: rgb(44, 44, 44);
-  background-attachment: fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
   max-width: 100vw;
   max-height: 100vh;
+}
+
+canvas { display: block; vertical-align: bottom; }
+
+#particles-js { 
+  position:absolute; 
+  width: 100%; 
+  height: 100%; 
+  background-color: #232741; 
 }
 
 .loading {
