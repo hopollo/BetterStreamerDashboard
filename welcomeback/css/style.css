@@ -403,7 +403,60 @@ body {
       -ms-flex-order: 4;
           order: 4;
 }
-/*# sourceMappingURL=style.css.map */
+
+/* all commons tablets */
+@media only screen and (min-width: 600px) and (max-width: 1100px) and (orientation: portrait) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+  .center {
+    height: 91vh;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .center .module {
+    height: 50%;
+    width: 50vw;
+  }
+  .bottom {
+    height: 4vh;
+  }
+}
+
+@media only screen and (min-width: 800px) and (max-width: 1400px) and (orientation: landscape) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+  .center {
+    height: 91vh;
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: (minmax(33.33vw, 1fr))[auto-fit];
+        grid-template-columns: repeat(auto-fit, minmax(33.33vw, 1fr));
+    -ms-grid-rows: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+  }
+  .center .module {
+    width: 100%;
+  }
+  .center .event-container {
+    height: 9%;
+  }
+  .center .chat, .center .events {
+    -ms-grid-row: 1;
+    -ms-grid-row-span: 2;
+    grid-row: 1/3;
+  }
+  .bottom {
+    height: 4vh;
+  }
+}
 
 /* all commons phones */
 @media only screen and (min-width: 300px) and (max-width: 500px) and (orientation: portrait) {
@@ -487,6 +540,7 @@ body {
     -ms-flex-item-align: center;
         -ms-grid-row-align: center;
         align-self: center;
+    height: 30px;
     width: auto;
   }
   .streamTitle {
@@ -515,4 +569,4 @@ body {
     height: 4vh;
   }
 }
-/*# sourceMappingURL=queries.css.map */
+/*# sourceMappingURL=style.css.map */
