@@ -80,7 +80,7 @@ function getUserAvatar() {
   fetch(`https://api.twitch.tv/helix/users?login=${displayName}`, token)
     .then(res => res.json())
     .then(data => {
-      $('.top').append(`<div class="userLogo"><a href="https://www.twitch.tv/${displayName}" target="_blank"><img src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></a></div>`);
+      $('.top').append(`<a href="https://www.twitch.tv/${displayName}" target="_blank"><img class="userLogo" src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></a>`);
     });
 }
 
@@ -267,7 +267,7 @@ function unlockItems() {
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
   $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
-  $('.module').resizable({disabled: false, containment: ".center" });
+  $('.module').resizable({disabled: false, minWidth: 300, minHeight: 300, containment: ".center" });
 
   /* Drag feature for touch devices */
   //TODO Tweak drag feature
@@ -665,7 +665,7 @@ function welcome() {
 function logged() {
   $('.loading').fadeOut(400, () => { $('.loading').remove(); });
   $('.login').fadeOut(400, () => { $('.login').remove(); });
-  $('.top, .bottom').fadeIn(400, () => { $('.top, .bottom').css('display', 'grid'); }); //Grid display still need to vertical align items
+  $('.top, .bottom').fadeIn(400);
   
   getStatic();
   getSettings();
