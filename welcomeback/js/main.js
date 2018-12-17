@@ -642,6 +642,8 @@ function applyDarkMode() {
 
 function welcome() {
   $('.settings').hide();
+  $('.streamTitle').remove();
+  $('.streamGame').remove();
   $('.center').append(`<div class="welcome" 
   style="
   position: absolute;
@@ -651,8 +653,8 @@ function welcome() {
   background: #2c2c2c;
   letter-spacing: .15em;
   "></div>`)
-  $('.welcome').append(`<h1 style="color:white;">Hey ${displayName}, welcome to BetterStreamerDashboard aka BSD ! Let's customize your dashboard !</h1>`);
-  $('.welcome').append(`<button class="startButton">Start</button>`);
+  $('.welcome').append(`<h1 style="color:white;">Hey <span style="color:red;">${displayName}</span>, welcome to BetterStreamerDashboard aka BSD ! Let's customize your dashboard !</h1>`);
+  $('.welcome').append(`<button class="startButton" style="width: 8em; height: 3em; border: none; border-radius: 12px; font-weight: 800; font-size: 1em; color:white; background: red;">Start</button>`);
   $('.startButton').click(() => {
     showPreferences();
   });
