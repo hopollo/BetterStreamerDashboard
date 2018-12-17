@@ -180,7 +180,7 @@ function getSettings() {
       <input type="radio" id="auto" name="light" value="auto" class="test1" checked> <label for="auto">Auto</label>
       <input type="radio" id="dark" name="light" value="dark" class="test1"> <label for="dark">Dark</label>
     </li>
-    <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank">@HoPolloTV</a></span>
+      <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
   </div>`);
 
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
