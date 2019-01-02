@@ -255,7 +255,7 @@ function lockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
 
-  //$('.module').draggable({ disabled: true });
+  $('.module').draggable({ disabled: true });
   $('.module').resizable({ disabled: true });
   //$('.module').sortable({ disabled: true });
   
@@ -267,9 +267,10 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  //$('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center", snap: true});
-  $('.module').resizable({ disabled: false, minWidth: 300, minHeight: 300, containment: ".center", grid: 50 });
-  $('.center').sortable({ tolerance: 'touch', containment: ".center" });
+  $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center", snap: true });
+  const centerMinHeight = $('.center').height() / 2;
+  const centerMinWidth = $('.center').width() / 3;
+  $('.module').resizable({ disabled: false, minHeight: centerMinHeight, minWidth: centerMinWidth, containment: ".center" });
 
   /* Drag feature for touch devices */
 
