@@ -251,36 +251,42 @@ function showInfo() {
 
 function lockItems() {
   $('.handle').css('display', 'none');
-  var img = '<span class="fas fa-lock"></span>';
+  const img = '<span class="fas fa-lock"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
 
-  $('.module').draggable({ disabled: true });
-  $(".module").resizable({ disabled: true });
+  //$('.module').draggable({ disabled: true });
+  $('.module').resizable({ disabled: true });
+  //$('.module').sortable({ disabled: true });
   
   $('.lock').click(() => { unlockItems(); });
 }
 
 function unlockItems() {
-  var img = '<span class="fas fa-lock-open"></span>';
+  const img = '<span class="fas fa-lock-open"></span>';
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center", snap: true});
-  $('.module').resizable({disabled: false, minWidth: 300, minHeight: 300, containment: ".center" });
+  //$('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center", snap: true});
+  $('.module').resizable({ disabled: false, minWidth: 300, minHeight: 300, containment: ".center", grid: 50 });
+  $('.center').sortable({ tolerance: 'touch', containment: ".center" });
 
   /* Drag feature for touch devices */
+
   //TODO Tweak drag feature
-  $('.module').on('touchmove', (e) => {
-    var xPos = e.changedTouches[0].clientX;
-    console.log(e.changedTouches)
-    var window = (e.changedTouches[0].target.className).split(' ')[1] || e.changedTouches[0].target.offsetParent.className.split(' ')[1];
-    var windowWidth = e.changedTouches[0].target.clientWidth;
-    var offset = $('.center').width() - windowWidth;
+  $('.module').on('touchstart', (e) => { //touchmove
+    let xPos = e; //e.changedTouches[0].clientX;
+    console.log(xPos);
+    let window = (e.changedTouches[0].target.className).split(' ')[1] || e.changedTouches[0].target.offsetParent.className.split(' ')[1];
+    let windowWidth = e.changedTouches[0].target.clientWidth;
+    let offset = $('.center').width() - windowWidth;
     if (xPos > 0 && xPos < offset) {
       $(`.${window}`).css('left', xPos);
     }
   });
+
+  $('.lock').click(() => { lockItems(); });
+}
 
   $('.lock').click(() => { lockItems(); });
 }
