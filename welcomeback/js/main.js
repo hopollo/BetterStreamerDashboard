@@ -266,7 +266,7 @@ function unlockItems() {
   $('.lock').replaceWith(`<button class="lock">${img}</button>`);
   $('.lock').css('display', 'block');
   $('.handle').css('display', 'block');
-  $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center" });
+  $('.module').draggable({ disabled: false, iframeFix: true, cursor: "move", containment : ".center", snap: true});
   $('.module').resizable({disabled: false, minWidth: 300, minHeight: 300, containment: ".center" });
 
   /* Drag feature for touch devices */
@@ -525,10 +525,19 @@ function getEvents() {
           var eventAvatar = data[i].data.avatar;
           var eventAuthor = data[i].data.username;
           var eventType = data[i].type;
-          if (eventType == "tip") {
-            var amount = data[i].data.amount;
-            var currency = data[i].data.currency;
-            eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;
+          switch (eventType) {
+            case 'tip':
+              const amount = data[i].data.amount;
+              const currency = data[i].data.currency;
+              eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;  
+              break;
+            case 'host':
+            case 'raid':
+              const viewersAmount = data[i].data.amount;
+              eventType = `${eventType} <i class="far fa-eye"></i> ${viewersAmount}`;
+              break;
+            default:
+              break;
           }
           var message = data[i].data.message;
           var eventID = data[i]._id;
