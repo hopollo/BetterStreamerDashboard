@@ -11,25 +11,25 @@ $(window).ready(() => {
 });
 
 function authenticate() {
-  var token = window.location.hash;
+  let token = window.location.hash;
   token = token.split('=')[1];
   token = token.split('&')[0];
  
   function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.href);
+    let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    let results = regex.exec(location.href);
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
   };
 
   function parseJwt (token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace('-', '+').replace('_', '/');
+    const base64Url = token.split('.')[1];
+    let base64 = base64Url.replace('-', '+').replace('_', '/');
     return JSON.parse(window.atob(base64));
   };
 
-  var JWT = getUrlParameter('id_token');
-  var decodedJWT = parseJwt(JWT);
+  const JWT = getUrlParameter('id_token');
+  let decodedJWT = parseJwt(JWT);
 
   clientID = decodedJWT.aud;
   userAuth = "Bearer " + token;
@@ -40,7 +40,7 @@ function authenticate() {
   logged();
 }
 
-var modules = {
+let modules = {
   twitchVideo : false,
   twitchClips : true,
   twitchEvents : true,
@@ -72,7 +72,7 @@ function updateModules() {
 }
 
 function getUserAvatar() {
-  var token = {
+  const token = {
     mode: 'cors',
     headers: { 'Authorization' : userAuth}
   };
@@ -99,9 +99,9 @@ function getVideo() {
 }
 
 function getClips() {
-  var url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
+  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
-  var token = {
+  const token = {
     mode: 'cors',
     headers: {
       'Accept' : 'application/vnd.twitchtv.v5+json',
@@ -112,19 +112,19 @@ function getClips() {
   fetch(url, token)
     .then(res => res.json())
     .then(data => {
-      var results = data.clips.length;
+      let results = data.clips.length;
 
       if (results != 0) {
         $('.defaultClip').remove();
         
-        for (var i=0, len=results; i<len; i++) {
-          var clipEmbedUrl = data.clips[i].embed_url;
-          var clipThumbnail = data.clips[i].thumbnails.small;
-          var clipViews = data.clips[i].views;
-          var clipTitle = data.clips[i].title;
+        for (let i=0, len=results; i<len; i++) {
+          let clipEmbedUrl = data.clips[i].embed_url;
+          let clipThumbnail = data.clips[i].thumbnails.small;
+          let clipViews = data.clips[i].views;
+          let clipTitle = data.clips[i].title;
           clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle;
-          var clipDuration = data.clips[i].duration;
-          var clipCreator = data.clips[i].curator.display_name;
+          let clipDuration = data.clips[i].duration;
+          let clipCreator = data.clips[i].curator.display_name;
           clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
 
           $('.clipsList').prepend(`
@@ -138,18 +138,9 @@ function getClips() {
     });
 }
 
-function getChat() {
-  $('.chat').replaceWith(`
-  <div class="module chat">
-    <div class="handle"></div>
-    <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${displayName}/chat"></iframe>
-  </div>`);
-}
-
 function getSettings() {
-
   /* SETTINGS PART */
-  var img = '<span class="fas fa-cog"></span>';
+  const img = '<span class="fas fa-cog"></span>';
   $('.preferences').replaceWith(`<button class="preferences">${img}</button>`);
   $('.preferences').css('display', 'block');
   $('.preferences').click(() => { showPreferences(); });
@@ -174,13 +165,16 @@ function getSettings() {
   </div>
   <div class="optionnals-options">
   <i class="fas fa-cogs options-family"></i>
-    <li>
+    <li style="display:none;">
       <p>Ligth-mode :</p>
       <input type="radio" id="classic" name="light" value="light" class="test1"> <label for="classic">Classic</label>
       <input type="radio" id="auto" name="light" value="auto" class="test1" checked> <label for="auto">Auto</label>
       <input type="radio" id="dark" name="light" value="dark" class="test1"> <label for="dark">Dark</label>
     </li>
-      <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
+    <li>
+      <input type="checkbox" class="options-item-vibrations" checked> Event vibrations</input>
+    </li>
+    <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
   </div>`);
 
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
@@ -211,35 +205,79 @@ function showPreferences() {
 
   $('.close').click(() => {
     $('.modal').css('display', 'none');
-    if ($('.options-item-streamElementsInfo').val() != null || $('.options-item-streamElementsInfo').val() > 40) { 
-      var jwt = $('.options-item-streamElementsInfo').val();
-      var video = $('.options-item-twitchVideo').is(':checked');
-      var clips = $('.options-item-twitchClips').is(':checked');
-      var events= $('.options-item-twitchEvents').is(':checked');
-      var chat = $('.options-item-twitchChat').is(':checked');
-      var uptime = $('.options-item-uptime').is(':checked');
-      var views = $('.options-item-views').is(':checked');
-      var viewers = $('.options-item-viewers').is(':checked');
-      var followers = $('.options-item-twitchFollowers').is(':checked');
-      
-      var userData = `SEToken=${jwt};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};`;
-      saveData(userData);
-    }
+    saveData();
   });
+}
+
+function saveData() {
+  if ($('.options-item-streamElementsInfo').val() != null || $('.options-item-streamElementsInfo').val() > 40) { 
+    var jwt = $('.options-item-streamElementsInfo').val();
+  }
+  let video = $('.options-item-twitchVideo').is(':checked');
+  let clips = $('.options-item-twitchClips').is(':checked');
+  let events= $('.options-item-twitchEvents').is(':checked');
+  let chat = $('.options-item-twitchChat').is(':checked');
+  let uptime = $('.options-item-uptime').is(':checked');
+  let views = $('.options-item-views').is(':checked');
+  let viewers = $('.options-item-viewers').is(':checked');
+  let followers = $('.options-item-twitchFollowers').is(':checked');
+  let vibrations = $('.options-items-vibrations').is('checked');
+  
+  const userData = `SEToken=${jwt};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Vibrations=${vibrations}`;
+  //TODO ADD cookies to save user choises (windows positions);
+  for (let i=0, len=userData.split(';').length; i < len; i ++) {
+    document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+}
+
+function readData() {
+  const cookieData = document.cookie;
+
+  if (cookieData == '' || 
+      !cookieData.includes("Video") && 
+      !cookieData.includes("Clips") && 
+      !cookieData.includes("Events") && 
+      !cookieData.includes("Chat") && 
+      !cookieData.includes("Uptime") && 
+      !cookieData.includes("Views") && 
+      !cookieData.includes("Viewers") && 
+      !cookieData.includes("Followers"))
+  { welcome(); return;}
+
+  $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
+  $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
+  $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
+  $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
+  $('.options-item-twitchChat').prop('checked', cookieData.includes("Chat=true"));
+  $('.options-item-uptime').prop('checked', cookieData.includes("Uptime=true"));
+  $('.options-item-views').prop('checked', cookieData.includes("Views=true"));
+  $('.options-item-viewers').prop('checked', cookieData.includes("Viewers=true"));
+  $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
+  $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"))
+
+  if (cookieData.includes("Video=true"))      { createVideo();     }
+  if (cookieData.includes("Clips=true"))      { createClips();     }
+  if (cookieData.includes("Events=true"))     { createEvents();    }
+  if (cookieData.includes("Chat=true"))       { createChat();      }
+  if (cookieData.includes("Uptime=true"))     { createUptime();    }
+  if (cookieData.includes("Views=true"))      { createViews();     }
+  if (cookieData.includes("Viewers=true"))    { createViewers();   }
+  if (cookieData.includes("Followers=true"))  { createFollowers(); }
+  if (cookieData.includes("Vibrations=true")) { createVibrations();  }
 }
 
 function showInfo() {
   $('.infos-modal').css('display', 'block');
   $('.titleLabel').attr('placeholder', 'Your stream title...');
   $('.gameLabel').attr('placeholder', 'Your stream game...');
-  var typingGame;
+  let typingGame;
   $('.gameLabel').keyup(() => { clearTimeout(typingGame); typingGame = setTimeout(() => { getGameImage(); }, 1500);});
 
   $('.fa-undo').click(() => { $('.titleLabel').val(''); })
 
   $('.submitInfo').click(() => {
-    var titleToUpdate = $('.titleLabel').val();
-    var gameToUpdate = $('.gameLabel').val();
+    const titleToUpdate = $('.titleLabel').val();
+    const gameToUpdate = $('.gameLabel').val();
 
     updateStreamInfo(titleToUpdate, gameToUpdate);
   });
@@ -257,7 +295,7 @@ function lockItems() {
 
   $('.module').draggable({ disabled: true });
   $('.module').resizable({ disabled: true });
-  //$('.module').sortable({ disabled: true });
+  //$('.center').sortable({ disabled: true, tolerance: "pointer", containment: ".center", grid: [3, 3], opacity: 0.5, revert: true });
   
   $('.lock').click(() => { unlockItems(); });
 }
@@ -289,58 +327,22 @@ function unlockItems() {
   $('.lock').click(() => { lockItems(); });
 }
 
-  $('.lock').click(() => { lockItems(); });
-}
-
-function saveData(data) {
-  //TODO ADD cookies to save user choises (window positions);
-  for (var i=0, len=data.split(';').length; i < len; i ++) {
-    document.cookie = `${data.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
-  }
-}
-
-function readData() {
-  var cookieData = document.cookie;
-
-  if (cookieData == '' || 
-      !cookieData.includes("Video") && 
-      !cookieData.includes("Clips") && 
-      !cookieData.includes("Events") && 
-      !cookieData.includes("Chat") && 
-      !cookieData.includes("Uptime") && 
-      !cookieData.includes("Views") && 
-      !cookieData.includes("Viewers") && 
-      !cookieData.includes("Followers"))
-  { welcome(); return;}
-
-  $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
-  $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
-  $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
-  $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
-  $('.options-item-twitchChat').prop('checked', cookieData.includes("Chat=true"));
-  $('.options-item-uptime').prop('checked', cookieData.includes("Uptime=true"));
-  $('.options-item-views').prop('checked', cookieData.includes("Views=true"));
-  $('.options-item-viewers').prop('checked', cookieData.includes("Viewers=true"));
-  $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
-
-  if (cookieData.includes("Video=true"))     { createVideo();     }
-  if (cookieData.includes("Clips=true"))     { createClips();     }
-  if (cookieData.includes("Events=true"))    { createEvents();    }
-  if (cookieData.includes("Chat=true"))      { createChat();      }
-  if (cookieData.includes("Uptime=true"))    { createUptime();    }
-  if (cookieData.includes("Views=true"))     { createViews();     }
-  if (cookieData.includes("Viewers=true"))   { createViewers();   }
-  if (cookieData.includes("Followers=true")) { createFollowers(); }
+function getChat() {
+  $('.chat').replaceWith(`
+  <div class="module chat">
+    <div class="handle"></div>
+    <iframe frameborder="0" scrolling="true" id="chat_embed" src="https://www.twitch.tv/embed/${displayName}/chat"></iframe>
+  </div>`);
 }
 
 function getViewers() {
   modules.viewers = true;
   $.get(`https://decapi.me/twitch/viewercount/${displayName}`, (viewers) => {
       if (viewers == `${displayName} is offline`) {
-        var img = '<span class="fas fa-video-slash"></span>'
+        const img = '<span class="fas fa-video-slash"></span>'
         $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
       } else {
-        var img = '<span class="fas fa-child"></span>'
+        const img = '<span class="fas fa-child"></span>'
         $('.viewers').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
         getUptime();
       }
@@ -349,7 +351,7 @@ function getViewers() {
 
 function getFollowers() {
   modules.followers = true;
-  var token = {
+  const token = {
     mode: 'cors',
     headers: { 'Authorization' : userAuth}
   };
@@ -358,7 +360,7 @@ function getFollowers() {
     .then(res => res.json())
     .then(data => {
       if (modules.twitchFollowers) { 
-        var totalFollowers = data.total;
+        const totalFollowers = data.total;
         $('.followers').replaceWith(`<div class="followers"><span class="fas fa-heart"> ${totalFollowers}</span></div>`);
       }
     });
@@ -367,21 +369,23 @@ function getFollowers() {
 var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
-  if (eventList.includes(id)) { console.log(`Event ${id} already exising`); return; }
+  if (eventList.includes(id)) { return; }
 
-  console.log(`adding new event ${id}`);
+  console.log(`AJOUT D'EVENT : ${name} ${type} ${id}`);
   eventList.push(id);
 
   if (message == null || message.length < 1) {
-    message = ""; 
-  } else { 
+    message = "";
+  } else {
     message = `<i class="fas fa-quote-left" style="color:grey;"></i> ${message} <i class="fas fa-quote-right" style="color:grey;"></i>`;
   }
+
+  navigator.vibrate(200);
 
   $('.events').append(`
     <div class="event-container">
       <div class="event-author-info">
-        <img class="event-author-avatar" src="">
+        <img class="event-author-avatar" src="" onlick="alert('OK')">
         <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}" target="_blank">${name}</a></div>
         <div class="event-author-type">${type}</div>
         <div class="event-author-message">${message}</div>
@@ -392,10 +396,13 @@ function addStreamEvent(avatar, name, type, id, message) {
 
 function getViews() {
   modules.views = true;
-  $.get(`https://decapi.me/twitch/total_views/${displayName}`, (views) => {
-      var img = '<span class="fas fa-eye"></span>';
+  fetch(`https://decapi.me/twitch/total_views/${displayName}`)
+    .then(res => res.json())
+    .then(views => {
+      const img = '<span class="fas fa-eye"></span>';
       $('.views').replaceWith(`<div class="views">${img} ${views}</div>`);
-  });
+    })
+    .catch(err => console.error(err))
 }
 
 function getTitleAndGame() {
@@ -407,7 +414,7 @@ function getTitleAndGame() {
       fetch(`https://decapi.me/twitch/game/${displayName}`)
       .then(res => res.text())
       .then(game => {
-        var img = '<a class="gameInfoLink" href="" target="_blank"><i class="fas fa-gamepad"></i></a>';
+        const img = '<a class="gameInfoLink" href="" target="_blank"><i class="fas fa-gamepad"></i></a>';
         $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
         $('.gameInfoLink').attr('href', `https://www.twitch.tv/directory/game/${game}`);
         $('.edit').click(() => {
@@ -426,22 +433,23 @@ function getTitleAndGame() {
 }
 
 function getGameImage() {
-  var currentGame = $('.gameLabel').val();
-  $('.game-label-state').replaceWith('<i class="game-label-state"><img class="game-image-loading"src="https://i.stack.imgur.com/FhHRx.gif" height="16px" width="16px"></i>');
-  settings = {
+  const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif"
+  let currentGame = $('.gameLabel').val();
+  $('.game-label-state').replaceWith(`<i class="game-label-state"><img class="game-image-loading"src="${loadingGif}" height="16px" width="16px"></i>`);
+  const settings = {
     headers : {
       "Client-ID" : clientID
     }
   }
 
   if (currentGame != null) {
-    $('.game-image-thumbnail').attr('src', "https://i.stack.imFgur.com/FhHRx.gif");
+    $('.game-image-thumbnail').attr('src', `${loadingGif}`);
 
     fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
       .then(res => res.json())
       .then(data => {
-        var gameImage = data.data[0].box_art_url;
-        var gameRealName = data.data[0].name;
+        let gameImage = data.data[0].box_art_url;
+        const gameRealName = data.data[0].name;
         gameImage = gameImage.replace('-{width}x{height}', '');
         $('.game-image-link').attr('href', `https://www.twitch.tv/directory/game/${currentGame}`);
         $('.game-image-thumbnail').attr('src', gameImage);
@@ -459,7 +467,7 @@ function getGameImage() {
 
 //function updateStreamInfo(status, game, suffix, separator) {
 function updateStreamInfo(status, game) {
-  var settings = {
+  let settings = {
     "async": true,
     "crossDomain": true,
     "url": `https://api.twitch.tv/kraken/channels/${userID}`,
@@ -487,34 +495,39 @@ function getUptime() {
     if (uptime == 'A channel user has to be specified.') {
       $('.uptime').text('');
     } else {
-      var img = '<span class="fas fa-clock"></span>';
+      const img = '<span class="fas fa-clock"></span>';
       $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
-      var splitted = uptime.split(' ');
-      var hours = (splitted[0] < 10 ? '0': '') + splitted[0];
-      var minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
+      const splitted = uptime.split(' ');
+      let hours = (splitted[0] < 10 ? '0': '') + splitted[0];
+      let minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
       $('.fa-clock').text(` ${hours}h${minutes}m`);
     }
   });
 }
 
 function getEvents() {
-  var SEJWTToken = $('.options-item-streamElementsInfo').val();
+  let SEJWTToken = $('.options-item-streamElementsInfo').val();
 
-  if (SEJWTToken == null || SEJWTToken < 40) { return; }
+  if (SEJWTToken == null || SEJWTToken < 40) { 
+    $('.options-item-streamElementsInfo').css('border', '1px red solid'); 
+    return;
+  }
 
+  $('.options-item-streamElementsInfo').css('border', '1px green solid');
+  
   function parseJwt (SEJWTToken) {
-    var base64Url = SEJWTToken.split('.')[1];
-    var base64 = base64Url.replace('-', '+').replace('_', '/');
+    const base64Url = SEJWTToken.split('.')[1];
+    let base64 = base64Url.replace('-', '+').replace('_', '/');
     return JSON.parse(window.atob(base64));
   };
 
-  var decodedJWT = parseJwt(SEJWTToken);
+  const decodedJWT = parseJwt(SEJWTToken);
 
-  var SEChannelID = decodedJWT.channel;
+  const SEChannelID = decodedJWT.channel;
 
   // Credits to LX from SE team
-  var url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow", "tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
-  var token = {
+  let url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow", "tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
+  let token = {
     headers: {
       'Host' : 'api.streamelements.com',
       'Authorization' : 'Bearer ' + SEJWTToken
@@ -524,14 +537,15 @@ function getEvents() {
   fetch(url, token)
     .then(res => res.json())
     .then(data => {
-      var results = data.length;
+      let results = data.length;
+      console.log('INTERROGATION DES EVENTS'); //REMOVE THIS
 
       if (results != 0) {
         $('.defaultEvent').remove();
-        for (var i=0, len=results; i < len; i++) {
-          var eventAvatar = data[i].data.avatar;
-          var eventAuthor = data[i].data.username;
-          var eventType = data[i].type;
+        for (let i=0, len=results; i < len; i++) {
+          let eventAvatar = data[i].data.avatar;
+          let eventAuthor = data[i].data.username;
+          let eventType = data[i].type;
           switch (eventType) {
             case 'tip':
               const amount = data[i].data.amount;
@@ -546,15 +560,14 @@ function getEvents() {
             default:
               break;
           }
-          var message = data[i].data.message;
-          var eventID = data[i]._id;
-        
+          let message = data[i].data.message;
+          let eventID = data[i]._id;
           addStreamEvent(eventAvatar, eventAuthor, eventType, eventID, message);
         }
       }
     })
+    .catch(err => console.error(err))
 }
-
 
 function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
@@ -575,14 +588,18 @@ function createClips() {
   `);
   getClips();
 }
-
 function createEvents() {
   modules.twitchEvents = true;
   $('.center').append(`
     <div class="module events">
       <div class="handle"></div>
     </div>`);
-  $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">No events yet or make sure you entered the correct StreamElements JWT Token in settings.</div>`);
+  
+  if ($('.options-item-streamElementsInfo').val().length > 30) {
+    $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">No events yet or invalid StreamElements JWT Token.</div>`);
+  } else {
+    $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">StreamElements JWT Token not configured.</div>`);
+  }
   getEvents();
 }
 function createChat() {
@@ -607,6 +624,9 @@ function createFollowers() {
   modules.twitchFollowers = true;
   $('.bottom').append(`<div class="followers"></div>`);
   getFollowers();
+}
+function createVibrations() {
+  //TODO finish to implement vibration
 }
 
 
@@ -660,6 +680,7 @@ function welcome() {
   $('.settings').hide();
   $('.streamTitle').remove();
   $('.streamGame').remove();
+
   $('.center').append(`<div class="welcome" 
   style="
   position: absolute;
@@ -764,5 +785,5 @@ function logged() {
     }
   });
 
-  setInterval(function() { updateModules(); }, 1*60*1000);
+  setInterval(() => { updateModules(); }, 1*60*1000);
 }
