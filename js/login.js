@@ -9,8 +9,9 @@ $(window).ready(() => {
   $('body').append(`
     <div class="login">
       <div class="loginTitle">
-        <h1>Get the Best Streamer Tool</h1>
-        <h2>The Ultimate Dashboard</h2>
+        <h1>Happy new year !</h1>
+        <h1>Get the Best Streamer Tool for 2019</h1>
+        <h2>The Ultimate Streamers Dashboard</h2>
       </div>
       <div class="twitchLogin">
         <button class="twitchLoginButton">
