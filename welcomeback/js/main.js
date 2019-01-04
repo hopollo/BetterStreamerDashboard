@@ -370,7 +370,6 @@ var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
   if (eventList.includes(id)) { 
-    console.log(`Already exsit : ${id} ${name} ${type}`); 
     return;
   }
 
@@ -385,17 +384,16 @@ function addStreamEvent(avatar, name, type, id, message) {
   navigator.vibrate(200);
   
   const userTwitchChannelLink = `https://www.twitch.tv/${name}`;
-
-  $('.events').append(`
+  
+  $('.events').prepend(`
     <div class="event-container">
       <div class="event-author-info">
-        <img class="event-author-avatar">
+        <img class="event-author-avatar" style="cursor:pointer;" src="${avatar}" onclick="window.open('${userTwitchChannelLink}')">
         <div class="event-author-name"><a style="color:inherit;" href="${userTwitchChannelLink}" target="_blank">${name}</a></div>
         <div class="event-author-type">${type}</div>
         <div class="event-author-message">${message}</div>
       </div>
     </div>`);
-  $('.event-author-avatar:last').attr({'src': avatar, 'onclick' : `window.open('${userTwitchChannelLink}')`}).css('cursor', 'pointer');
 }
 
 function getViews() {
@@ -540,15 +538,15 @@ function getEvents() {
 
   fetch(url, token)
     .then(res => res.json())
+    .then(data => data.reverse())
     .then(data => {
-      let results = data.length;
-      console.log('INTERROGATION DES EVENTS'); //REMOVE THIS
+      const results = data.length;
 
       if (results != 0) {
         $('.defaultEvent').remove();
         for (let i=0, len=results; i < len; i++) {
-          let eventAvatar = data[i].data.avatar;
-          let eventAuthor = data[i].data.username;
+          const eventAvatar = data[i].data.avatar;
+          const eventAuthor = data[i].data.username;
           let eventType = data[i].type;
           switch (eventType) {
             case 'tip':
@@ -564,8 +562,8 @@ function getEvents() {
             default:
               break;
           }
-          let message = data[i].data.message;
-          let eventID = data[i]._id;
+          const message = data[i].data.message;
+          const eventID = data[i]._id;
           addStreamEvent(eventAvatar, eventAuthor, eventType, eventID, message);
         }
       }
@@ -592,6 +590,7 @@ function createClips() {
   `);
   getClips();
 }
+
 function createEvents() {
   modules.twitchEvents = true;
   $('.center').append(`
@@ -632,7 +631,6 @@ function createFollowers() {
 function createVibrations() {
   //TODO finish to implement vibration
 }
-
 
 function removeVideo() {
   modules.twitchVideo = false;
