@@ -369,9 +369,11 @@ function getFollowers() {
 var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
-  if (eventList.includes(id)) { return; }
+  if (eventList.includes(id)) { 
+    console.log(`Already exsit : ${id} ${name} ${type}`); 
+    return;
+  }
 
-  console.log(`AJOUT D'EVENT : ${name} ${type} ${id}`);
   eventList.push(id);
 
   if (message == null || message.length < 1) {
@@ -381,17 +383,19 @@ function addStreamEvent(avatar, name, type, id, message) {
   }
 
   navigator.vibrate(200);
+  
+  const userTwitchChannelLink = `https://www.twitch.tv/${name}`;
 
   $('.events').append(`
     <div class="event-container">
       <div class="event-author-info">
-        <img class="event-author-avatar" src="" onlick="alert('OK')">
-        <div class="event-author-name"><a style="color:inherit;" href="https://www.twitch.tv/${name}" target="_blank">${name}</a></div>
+        <img class="event-author-avatar">
+        <div class="event-author-name"><a style="color:inherit;" href="${userTwitchChannelLink}" target="_blank">${name}</a></div>
         <div class="event-author-type">${type}</div>
         <div class="event-author-message">${message}</div>
       </div>
     </div>`);
-  $('.event-author-avatar:last').attr('src', avatar);
+  $('.event-author-avatar:last').attr({'src': avatar, 'onclick' : `window.open('${userTwitchChannelLink}')`}).css('cursor', 'pointer');
 }
 
 function getViews() {
