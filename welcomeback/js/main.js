@@ -254,8 +254,8 @@ function readData() {
       !cookieData.includes("Subscribers"))
   { welcome(); return;}
 
-  $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
-  $('.options-item-discordInfo').val(cookieData.split('Discord=')[1].split(';')[0]);
+  if (cookieData.includes('SEToken')) { $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]); }
+  if (cookieData.includes('Discord')) { $('.options-item-discordInfo').val(cookieData.split('Discord=')[1].split(';')[0]); }
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
   $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
