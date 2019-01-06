@@ -16,6 +16,7 @@ a {
 
 .fa-pen,
 .userLogo,
+.discord,
 .preferences,
 .lock {
   cursor: pointer;
@@ -57,10 +58,33 @@ body {
   /* to keep image aspect-ratio */
 }
 
-.top .settings {
+.top .discord {
   -webkit-box-ordinal-group: 3;
       -ms-flex-order: 2;
           order: 2;
+  max-height: 8vh;
+  min-width: 30px;
+  width: auto;
+}
+
+.top .discord iframe {
+  display: none;
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.top .discord:hover i {
+  color: #7289da;
+}
+
+.top .settings {
+  -webkit-box-ordinal-group: 4;
+      -ms-flex-order: 3;
+          order: 3;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -71,15 +95,15 @@ body {
 }
 
 .top .streamTitle {
-  -webkit-box-ordinal-group: 4;
-      -ms-flex-order: 3;
-          order: 3;
-}
-
-.top .streamGame {
   -webkit-box-ordinal-group: 5;
       -ms-flex-order: 4;
           order: 4;
+}
+
+.top .streamGame {
+  -webkit-box-ordinal-group: 6;
+      -ms-flex-order: 5;
+          order: 5;
 }
 
 .top .streamTitle, .top .streamGame {
@@ -96,6 +120,7 @@ body {
   display: -ms-flexbox;
   display: flex;
   height: 87vh;
+  /* hide token */
   /* TODO Change the .new to a bonus class for element:after */
   /*
    style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
@@ -175,8 +200,11 @@ body {
   border-right: grey 1px solid;
 }
 
+.center .others-options input {
+  width: 90%;
+}
+
 .center .options-item-streamElementsInfo {
-  width: 100%;
   color: white;
 }
 
