@@ -48,6 +48,7 @@ let modules = {
   twitchUptime: true,
   twitchViews: true,
   twitchViewers: true,
+  twitchSubscribers: false,
   twitchFollowers: true,
 }
 
@@ -63,12 +64,13 @@ function getStatic() {
 
 function updateModules() {
   getTitleAndGame();
-  getFollowers();
   
-  if (modules.twitchClips) { getClips(); }
-  if (modules.twitchViews) { getViews(); }
-  if (modules.twitchViewers) { getViewers(); }
-  if (modules.twitchEvents) { getEvents(); }
+  if (modules.twitchClips)       { getClips();       }
+  if (modules.twitchViews)       { getViews();       }
+  if (modules.twitchViewers)     { getViewers();     }
+  if (modules.twitchFollowers)   { getFollowers();   }
+  if (modules.twitchSubscribers) { getSubscribers(); }
+  if (modules.twitchEvents)      { getEvents();      }
 }
 
 function getUserAvatar() {
@@ -86,16 +88,17 @@ function getUserAvatar() {
 
 function getVideo() {
   $('.video').replaceWith(`
-  <div class="module video">
-    <div class="handle"></div>
-    <iframe src="https://player.twitch.tv/?channel=${displayName}" 
-      frameborder="0" 
-      allowfullscreen="true" 
-      scrolling="no" 
-      height="100%" 
-      width="100%">
-    </iframe>
-  </div>`);
+    <div class="module video">
+      <div class="handle"></div>
+      <iframe src="https://player.twitch.tv/?channel=${displayName}" 
+        frameborder="0" 
+        allowfullscreen="true" 
+        scrolling="no" 
+        height="100%" 
+        width="100%">
+      </iframe>
+    </div>
+  `);
 }
 
 function getClips() {
@@ -131,8 +134,8 @@ function getClips() {
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
             <div class="clipCreatorName">By : <a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
-            </li>`
-          );
+            </li>
+          `);
         }
       }
     });
@@ -158,10 +161,12 @@ function getSettings() {
     <li><input type="checkbox" class="options-item-views" checked> Views</input></li>
     <li><input type="checkbox" class="options-item-viewers" checked> Viewers</input></li>
     <li><input type="checkbox" class="options-item-twitchFollowers" checked> Followers</input></li>
+    <!-- <li><input type="checkbox" class="options-item-twitchSubscribers" checked> Subscribers</input></li> -->
   </div>
   <div class="others-options">
   <i class="fas fa-key options-family"></i>
     <li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it here</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
+    <li>Discord Server ID : <input type="text" class="options-item-discordInfo"> <a href="https://cdn.discordapp.com/attachments/331192523856805890/531505436374073374/unknown.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
   </div>
   <div class="optionnals-options">
   <i class="fas fa-cogs options-family"></i>
@@ -213,6 +218,9 @@ function saveData() {
   if ($('.options-item-streamElementsInfo').val() != null || $('.options-item-streamElementsInfo').val() > 40) { 
     var jwt = $('.options-item-streamElementsInfo').val();
   }
+  if ($('.options-item-discordInfo').val() != null || $('.options-item-discordInfo').val() > 15) {
+    var discord = $('.options-item-discordInfo').val();
+  }
   let video = $('.options-item-twitchVideo').is(':checked');
   let clips = $('.options-item-twitchClips').is(':checked');
   let events= $('.options-item-twitchEvents').is(':checked');
@@ -221,9 +229,10 @@ function saveData() {
   let views = $('.options-item-views').is(':checked');
   let viewers = $('.options-item-viewers').is(':checked');
   let followers = $('.options-item-twitchFollowers').is(':checked');
+  let subscribers = $('.options-item-twitchSubscribers').is(':checked');
   let vibrations = $('.options-items-vibrations').is('checked');
   
-  const userData = `SEToken=${jwt};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Vibrations=${vibrations}`;
+  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations}`;
   //TODO ADD cookies to save user choises (windows positions);
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
     document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
@@ -241,10 +250,12 @@ function readData() {
       !cookieData.includes("Uptime") && 
       !cookieData.includes("Views") && 
       !cookieData.includes("Viewers") && 
-      !cookieData.includes("Followers"))
+      !cookieData.includes("Followers") &&
+      !cookieData.includes("Subscribers"))
   { welcome(); return;}
 
   $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
+  $('.options-item-discordInfo').val(cookieData.split('Discord=')[1].split(';')[0]);
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
   $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
@@ -253,17 +264,20 @@ function readData() {
   $('.options-item-views').prop('checked', cookieData.includes("Views=true"));
   $('.options-item-viewers').prop('checked', cookieData.includes("Viewers=true"));
   $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
-  $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"))
+  $('.options-item-twitchSubscribers').prop('checked', cookieData.includes("Subscribers=true"));
+  $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"));
 
-  if (cookieData.includes("Video=true"))      { createVideo();     }
-  if (cookieData.includes("Clips=true"))      { createClips();     }
-  if (cookieData.includes("Events=true"))     { createEvents();    }
-  if (cookieData.includes("Chat=true"))       { createChat();      }
-  if (cookieData.includes("Uptime=true"))     { createUptime();    }
-  if (cookieData.includes("Views=true"))      { createViews();     }
-  if (cookieData.includes("Viewers=true"))    { createViewers();   }
-  if (cookieData.includes("Followers=true"))  { createFollowers(); }
-  if (cookieData.includes("Vibrations=true")) { createVibrations();  }
+  if (cookieData.includes("Discord="))          { createDiscord();          }
+  if (cookieData.includes("Video=true"))        { createVideo();            }
+  if (cookieData.includes("Clips=true"))        { createClips();            }
+  if (cookieData.includes("Events=true"))       { createEvents();           }
+  if (cookieData.includes("Chat=true"))         { createChat();             }
+  if (cookieData.includes("Uptime=true"))       { createUptime();           }
+  if (cookieData.includes("Views=true"))        { createViews();            }
+  if (cookieData.includes("Viewers=true"))      { createViewers();          }
+  if (cookieData.includes("Followers=true"))    { createFollowers();        }
+  if (cookieData.includes("Subscribers=true"))  { createSubscribers();      }
+  if (cookieData.includes("Vibrations=true"))   { createVibrations();       }
 }
 
 function showInfo() {
@@ -353,7 +367,7 @@ function getFollowers() {
   modules.followers = true;
   const token = {
     mode: 'cors',
-    headers: { 'Authorization' : userAuth}
+    headers: { 'Authorization' : userAuth }
   };
 
   fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, token)
@@ -361,15 +375,40 @@ function getFollowers() {
     .then(data => {
       if (modules.twitchFollowers) { 
         const totalFollowers = data.total;
-        $('.followers').replaceWith(`<div class="followers"><span class="fas fa-heart"> ${totalFollowers}</span></div>`);
+        $('.followers').replaceWith(`<div class="followers"><i class="fas fa-heart"> ${totalFollowers}</i></div>`);
       }
-    });
+    })
+    .catch(err => console.error(err))
+}
+
+function getSubscribers() {
+  //TODO FINISH TO RETRIEVE SUBSCRIBERS + HIDE SUBSCRIBERS OPTIONS IF NOT AFFILIATE OR PARTENER
+  modules.subscribers = true;
+  const token = {
+    mode: 'cors',
+    headers: {
+      'Accept' : 'application/vnd.twitchtv.v5+json',
+      'Client-ID': clientID,
+      'Authorization': `OAuth ${userAuth}`
+    }
+  };
+
+  fetch(`https://api.twitch.tv/kraken/channels/${userID}/subscriptions`, token)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+      if (modules.twitchSubscribers) {
+        const totalSubscribers = data._total;
+        $('.subscribers').replaceWith(`<div class="subscribers"><i class="fas fa-comment-dollar"> ${totalSubscribers}</i></div>`);
+      }
+    })
+    .catch(err => console.error(err))
 }
 
 var eventList = [];
 
 function addStreamEvent(avatar, name, type, id, message) {
-  if (eventList.includes(id)) { 
+  if (eventList.includes(id)) {
     return;
   }
 
@@ -554,6 +593,15 @@ function getEvents() {
               const currency = data[i].data.currency;
               eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;  
               break;
+            case 'subscriber' :
+              const subAmount = data[i].data.amount;
+              let tier = data[i].data.tier;
+              if (tier == "1000")  { tier = "T1"    }
+              if (tier == "2000")  { tier = "T2"    }
+              if (tier == "3000")  { tier = "T3"    }
+              if (tier == "prime") { tier = "Prime" }
+              eventType = `<i class="fas fa-star"></i> ${tier} (x${subAmount})`;
+              break;
             case 'host':
             case 'raid':
               const viewersAmount = data[i].data.amount;
@@ -571,6 +619,22 @@ function getEvents() {
     .catch(err => console.error(err))
 }
 
+function createDiscord() {
+  const discordID = $('.options-item-discordInfo').val();
+  if (discordID.length < 1) { return; }
+
+  const centerViewHeight = $('.center').height();
+
+  $('.top').append(`<div class="discord"><i class="fab fa-discord" style="font-size:1.5em;vertical-align:middle;"></i></div>`);
+  
+  $('.discord').append(`
+    <iframe src="https://discordapp.com/widget?id=${discordID}&theme=dark" width="350" height="${centerViewHeight}" allowtransparency="true" frameborder="0"></iframe>
+  `);
+  
+  $('.discord').hover(() => {
+    $(".discord iframe").toggle();
+  });
+}
 function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
   getVideo();
@@ -590,7 +654,6 @@ function createClips() {
   `);
   getClips();
 }
-
 function createEvents() {
   modules.twitchEvents = true;
   $('.center').append(`
@@ -628,6 +691,11 @@ function createFollowers() {
   $('.bottom').append(`<div class="followers"></div>`);
   getFollowers();
 }
+function createSubscribers() {
+  modules.twitchSubscribers = true;
+  $('.bottom').append(`<div class="subscribers"></div>`)
+  getSubscribers();
+}
 function createVibrations() {
   //TODO finish to implement vibration
 }
@@ -664,6 +732,10 @@ function removeViewers() {
 function removeFollowers() {
   modules.followers = false;
   $('.followers').remove();
+}
+function removeSubscribers() {
+  modules.subscribers = false;
+  $('.subscribers').remove();
 }
 
 function applyClassicMode() {
@@ -741,6 +813,9 @@ function logged() {
         case 'options-item-twitchFollowers':
           createFollowers();
           break;
+        case 'options-item-twitchSubscribers':
+          createSubscribers();
+          break;
       }
     }
     else {
@@ -769,23 +844,35 @@ function logged() {
         case 'options-item-twitchFollowers':
           removeFollowers();
           break;
+        case 'options-item-twitchSubscribers':
+          removeSubscribers();
+          break;
       }
     }
   });
 
   $('input:radio').change(function() {
     switch(this['id']) {
-      case 'classic':
-        applyClassicMode();
-        break;
       case 'auto':
         applyAutoMode();
         break;
       case 'dark':
         applyDarkMode();
         break;
+      default:
+      case 'classic':
+        applyClassicMode();
+        break;
     }
   });
+
+  $('input:text').change(function() {
+    switch(this.className) {
+      case 'options-item-discordInfo':
+        createDiscord();
+        break;
+    }
+  })
 
   setInterval(() => { updateModules(); }, 1*60*1000);
 }
