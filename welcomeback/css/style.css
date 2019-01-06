@@ -120,7 +120,6 @@ body {
   display: -ms-flexbox;
   display: flex;
   height: 87vh;
-  /* hide token */
   /* TODO Change the .new to a bonus class for element:after */
   /*
    style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
