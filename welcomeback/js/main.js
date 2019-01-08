@@ -624,6 +624,8 @@ function createDiscord() {
   if (discordID.length < 1) { return; }
 
   const centerViewHeight = $('.center').height();
+  
+  $('.discord').remove(); /* prevent to add multiples discord buttons */
 
   $('.top').append(`<div class="discord"><i class="fab fa-discord" style="font-size:1.5em;vertical-align:middle;"></i></div>`);
   
