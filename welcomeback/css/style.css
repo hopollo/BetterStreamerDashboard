@@ -346,7 +346,7 @@ body {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 5em auto auto;
-      grid-template-columns: 60px auto auto;
+      grid-template-columns: 5em auto auto;
   -ms-grid-rows: 50% 50%;
       grid-template-rows: 50% 50%;
   grid-column-gap: 5px;
