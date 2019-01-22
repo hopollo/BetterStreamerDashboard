@@ -231,7 +231,7 @@ function saveData() {
   let followers = $('.options-item-twitchFollowers').is(':checked');
   let subscribers = $('.options-item-twitchSubscribers').is(':checked');
   let vibrations = $('.options-items-vibrations').is('checked');
-  
+
   const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations}`;
   //TODO ADD cookies to save user choises (windows positions);
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
@@ -239,23 +239,45 @@ function saveData() {
   }
 }
 
+function savePositions() {
+  /*
+  if (document.cookie.split("Chat=")[1].split(';')[0] === 'true') {
+    const chatPos = $('.chat').offset();
+    document.cookie = `ChatPos=${chatPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+  if (document.cookie.split("Events=")[1].split(';')[0] === 'true') {
+    const eventsPos = $('.events').offset();
+    document.cookie = `EventsPos=${eventsPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+  if (document.cookie.split("Video=")[1].split(';')[0] === 'true') { 
+    const videoPos =  $('.video').offset();
+    document.cookie = `VideoPos=${videoPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+  if (document.cookie.split("Clips=")[1].split(';')[0] === 'true') {
+    const clipsPos = $('.clips').offset();
+    document.cookie = `ClipsPos=${clipsPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+  */
+}
+
 function readData() {
   const cookieData = document.cookie;
 
   if (cookieData == '' || 
-      !cookieData.includes("Video") && 
-      !cookieData.includes("Clips") && 
-      !cookieData.includes("Events") && 
-      !cookieData.includes("Chat") && 
-      !cookieData.includes("Uptime") && 
-      !cookieData.includes("Views") && 
-      !cookieData.includes("Viewers") && 
-      !cookieData.includes("Followers") &&
-      !cookieData.includes("Subscribers"))
-  { welcome(); return;}
+    !cookieData.includes("Video") && 
+    !cookieData.includes("Clips") && 
+    !cookieData.includes("Events") && 
+    !cookieData.includes("Chat") && 
+    !cookieData.includes("Uptime") &&
+    !cookieData.includes("Views") && 
+    !cookieData.includes("Viewers") && 
+    !cookieData.includes("Followers") &&
+    !cookieData.includes("Subscribers"))
+  { welcome(); return; }
 
   if (cookieData.includes('SEToken')) { $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]); }
   if (cookieData.includes('Discord')) { $('.options-item-discordInfo').val(cookieData.split('Discord=')[1].split(';')[0]); }
+  $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
   $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
@@ -267,17 +289,17 @@ function readData() {
   $('.options-item-twitchSubscribers').prop('checked', cookieData.includes("Subscribers=true"));
   $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"));
 
-  if (cookieData.includes("Discord="))          { createDiscord();          }
-  if (cookieData.includes("Video=true"))        { createVideo();            }
-  if (cookieData.includes("Clips=true"))        { createClips();            }
-  if (cookieData.includes("Events=true"))       { createEvents();           }
-  if (cookieData.includes("Chat=true"))         { createChat();             }
-  if (cookieData.includes("Uptime=true"))       { createUptime();           }
-  if (cookieData.includes("Views=true"))        { createViews();            }
-  if (cookieData.includes("Viewers=true"))      { createViewers();          }
-  if (cookieData.includes("Followers=true"))    { createFollowers();        }
-  if (cookieData.includes("Subscribers=true"))  { createSubscribers();      }
-  if (cookieData.includes("Vibrations=true"))   { createVibrations();       }
+  if (cookieData.includes("Discord="))          { createDiscord();     }
+  if (cookieData.includes("Video=true"))        { createVideo();       }
+  if (cookieData.includes("Clips=true"))        { createClips();       }
+  if (cookieData.includes("Events=true"))       { createEvents();      }
+  if (cookieData.includes("Chat=true"))         { createChat();        }
+  if (cookieData.includes("Uptime=true"))       { createUptime();      }
+  if (cookieData.includes("Views=true"))        { createViews();       }
+  if (cookieData.includes("Viewers=true"))      { createViewers();     }
+  if (cookieData.includes("Followers=true"))    { createFollowers();   }
+  if (cookieData.includes("Subscribers=true"))  { createSubscribers(); }
+  if (cookieData.includes("Vibrations=true"))   { createVibrations();  }
 }
 
 function showInfo() {
@@ -338,7 +360,7 @@ function unlockItems() {
     }
   });
 
-  $('.lock').click(() => { lockItems(); });
+  $('.lock').click(() => { savePositions(); lockItems(); });
 }
 
 function getChat() {
@@ -624,8 +646,8 @@ function createDiscord() {
   if (discordID.length < 1) { return; }
 
   const centerViewHeight = $('.center').height();
-  
-  $('.discord').remove(); /* prevent to add multiples discord buttons */
+
+  $('.discord').remove();
 
   $('.top').append(`<div class="discord"><i class="fab fa-discord" style="font-size:1.5em;vertical-align:middle;"></i></div>`);
   
@@ -639,7 +661,14 @@ function createDiscord() {
 }
 function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
+  
   getVideo();
+
+  try {
+    $('.video').css('left', `${document.cookie.split('VideoPos=')[1].split(';')[0]}px`);
+  } catch (err) {
+    console.error(err);
+  }
 }
 function createClips() {
   modules.twitchClips = true;
@@ -655,6 +684,12 @@ function createClips() {
     </div>
   `);
   getClips();
+
+  try {
+    $('.clips').css('left', `${document.cookie.split('ClipsPos=')[1].split(';')[0]}px`);
+  } catch (err) {
+    console.error(err);
+  }
 }
 function createEvents() {
   modules.twitchEvents = true;
@@ -668,11 +703,25 @@ function createEvents() {
   } else {
     $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">StreamElements JWT Token not configured.</div>`);
   }
+
   getEvents();
+
+  try {
+    $('.events').css('left', `${document.cookie.split('EventsPos=')[1].split(';')[0]}px`);
+  } catch (err) {
+    console.error(err);
+  }
 }
 function createChat() {
   $('.center').append(`<div class="module chat"></div>`);
+  
   getChat();
+
+  try {
+    $('.chat').css('left', `${document.cookie.split('ChatPos=')[1].split(';')[0]}px`);
+  } catch (err) {
+    console.error(err);
+  }
 }
 function createViews() {
   modules.twitchViews = true;
