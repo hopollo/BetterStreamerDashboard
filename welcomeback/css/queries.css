@@ -1,0 +1,111 @@
+/* all commons phones */
+@media only screen and (min-width: 300px) and (max-width: 500px) and (orientation: portrait) {
+  body {
+    overflow-y: scroll;
+  }
+  .top, .userLogo {
+    height: 4vh;
+  }
+  .settings {
+    width: 80px;
+  }
+  .streamTitle {
+    display: none;
+  }
+  .streamGame {
+    font-size: .7em;
+  }
+  .center {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .center .modal-content {
+    width: 100vw;
+  }
+  .center .modal-content .options {
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: "twitch options" "twitch optionnal";
+  }
+  .center .modal-content .options div {
+    width: 100%;
+    border-right: none;
+  }
+  .center .modal-content .twitch-options {
+    -ms-grid-row: 1;
+    -ms-grid-row-span: 2;
+    -ms-grid-column: 1;
+    grid-area: twitch;
+  }
+  .center .modal-content .others-options {
+    -ms-grid-row: 1;
+    -ms-grid-column: 2;
+    grid-area: options;
+  }
+  .center .modal-content .optionnals-options {
+    -ms-grid-row: 2;
+    -ms-grid-column: 2;
+    grid-area: optionnal;
+    display: none;
+  }
+  .center .module {
+    -ms-flex-preferred-size: 100vw;
+        flex-basis: 100vw;
+    height: 50%;
+  }
+  .center .event-container {
+    height: 16.66%;
+  }
+  .center .event-container .event-author-name, .center .event-container .event-author-type {
+    margin-left: 5px;
+  }
+  .bottom {
+    height: 3vh;
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+  }
+}
+
+@media only screen and (min-width: 500px) and (max-width: 900px) and (orientation: landscape) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+  .settings button {
+    -ms-flex-item-align: center;
+        -ms-grid-row-align: center;
+        align-self: center;
+    width: auto;
+  }
+  .streamTitle {
+    display: none;
+  }
+  .streamTitle, .streamGame {
+    font-size: .8em;
+  }
+  .center {
+    height: 91vh;
+    display: -ms-grid;
+    display: grid;
+    -ms-grid-columns: (minmax(33.33vw, 1fr))[auto-fit];
+        grid-template-columns: repeat(auto-fit, minmax(33.33vw, 1fr));
+    -ms-grid-rows: 1fr;
+        grid-template-rows: 1fr;
+  }
+  .center .module {
+    height: 50%;
+    width: 100%;
+  }
+  .center .chat, .center .events {
+    height: 100%;
+  }
+  .bottom {
+    height: 4vh;
+  }
+}
+/*# sourceMappingURL=queries.css.map */
