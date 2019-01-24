@@ -102,6 +102,7 @@ function getVideo() {
 }
 
 function getClips() {
+  let clipsDisplayed = [];
   const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   const token = {
@@ -115,27 +116,31 @@ function getClips() {
   fetch(url, token)
     .then(res => res.json())
     .then(data => {
-      let results = data.clips.length;
+      const results = data.clips.length;
 
       if (results != 0) {
         $('.defaultClip').remove();
         
         for (let i=0, len=results; i<len; i++) {
-          let clipEmbedUrl = data.clips[i].embed_url;
-          let clipThumbnail = data.clips[i].thumbnails.small;
-          let clipViews = data.clips[i].views;
+          const clipEmbedUrl = data.clips[i].embed_url;
+          const clipThumbnail = data.clips[i].thumbnails.small;
+          const clipViews = data.clips[i].views;
           let clipTitle = data.clips[i].title;
           clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle;
-          let clipDuration = data.clips[i].duration;
+          const clipDuration = data.clips[i].duration;
           let clipCreator = data.clips[i].curator.display_name;
           clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
 
-          $('.clipsList').prepend(`
+          if (clipsDisplayed.includes(clipEmbedUrl)) { return }
+          else {
+            clipsDisplayed.push(clipEmbedUrl);
+            $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName">By : <a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
+            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
             </li>
           `);
+          }
         }
       }
     });
@@ -554,17 +559,23 @@ function updateStreamInfo(status, game) {
 }
 
 function getUptime() {
-  $.get(`https://decapi.me/twitch/uptime/${displayName}`, (uptime) => {
-    if (uptime == 'A channel user has to be specified.') {
-      $('.uptime').text('');
-    } else {
-      const img = '<span class="fas fa-clock"></span>';
-      $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
-      const splitted = uptime.split(' ');
-      let hours = (splitted[0] < 10 ? '0': '') + splitted[0];
-      let minutes = (splitted[2] < 10 ? '0': '') + splitted[2];
-      $('.fa-clock').text(` ${hours}h${minutes}m`);
-    }
+  fetch(`https://decapi.me/twitch/uptime/${displayName}`)
+    .then(uptime => {
+      if (uptime == 'A channel user has to be specified.') {
+        $('.uptime').text('');
+      } else {
+        const img = '<span class="fas fa-clock"></span>';
+        $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
+        let hours = uptime.split(' hours, ')[0];
+        let minutes = uptime.split(' minutes, ')[0];
+        hours = (hours < 10 ? '0': '') + hours;
+        minutes = (minutes < 10 ? '0': '') + minutes;
+        $('.fa-clock').text(` ${hours}h${minutes}m`);
+      }
+    .catch(err => {
+      console.error(err);
+      $('.uptime').replaceWith(`<div class="uptime"style="color:red">error</div>`);
+    })
   });
 }
 
