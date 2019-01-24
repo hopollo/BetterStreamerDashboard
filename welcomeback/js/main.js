@@ -101,8 +101,8 @@ function getVideo() {
   `);
 }
 
+var clipsDisplayed = [];
 function getClips() {
-  let clipsDisplayed = [];
   const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
 
   const token = {
@@ -122,6 +122,8 @@ function getClips() {
         $('.defaultClip').remove();
         
         for (let i=0, len=results; i<len; i++) {
+          // Slugs works as IDs
+          const clipSlug = data.clips[i].slug;  
           const clipEmbedUrl = data.clips[i].embed_url;
           const clipThumbnail = data.clips[i].thumbnails.small;
           const clipViews = data.clips[i].views;
@@ -131,9 +133,9 @@ function getClips() {
           let clipCreator = data.clips[i].curator.display_name;
           clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
 
-          if (clipsDisplayed.includes(clipEmbedUrl)) { return }
+          if (clipsDisplayed.includes(clipSlug)) { return }
           else {
-            clipsDisplayed.push(clipEmbedUrl);
+            clipsDisplayed.push(clipSlug);
             $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
