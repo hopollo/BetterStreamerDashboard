@@ -560,24 +560,31 @@ function updateStreamInfo(status, game) {
 
 function getUptime() {
   fetch(`https://decapi.me/twitch/uptime/${displayName}`)
-    .then(uptime => {
-      if (uptime == 'A channel user has to be specified.') {
+    .then(uptime => uptime.text())
+    .then(data => {
+      if (data == 'A channel user has to be specified.') {
         $('.uptime').text('');
       } else {
         const img = '<span class="fas fa-clock"></span>';
         $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
-        let hours = uptime.split(' hours, ')[0];
-        let minutes = uptime.split(' minutes, ')[0];
-        hours = (hours < 10 ? '0': '') + hours;
-        minutes = (minutes < 10 ? '0': '') + minutes;
-        $('.fa-clock').text(` ${hours}h${minutes}m`);
+        if (data.includes(' hours, ')) {
+          let hours = data.split(' hours, ')[0];
+          let minutes = data.split(' minutes, ')[0].split(' hours, ')[1];
+          hours = (hours < 10 ? '0' : '') + hours;
+          minutes = (minutes < 10 ? '0' : '') + minutes;
+          $('.fa-clock').text(` ${hours}h${minutes}m`);
+        }
+        else {
+          let minutes = data.split(' minutes, ')[0];
+          minutes = (minutes < 10 ? '0' : '') + minutes;
+          $('.fa-clock').text(` ${minutes}m`);          
+        }
       }
     })
     .catch(err => {
       console.error(err);
       $('.uptime').replaceWith(`<div class="uptime"style="color:red">error</div>`);
-    })
-  });
+    });
 }
 
 function getEvents() {
