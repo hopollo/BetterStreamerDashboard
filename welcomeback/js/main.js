@@ -571,7 +571,7 @@ function getUptime() {
         hours = (hours < 10 ? '0': '') + hours;
         minutes = (minutes < 10 ? '0': '') + minutes;
         $('.fa-clock').text(` ${hours}h${minutes}m`);
-      }
+      })
     .catch(err => {
       console.error(err);
       $('.uptime').replaceWith(`<div class="uptime"style="color:red">error</div>`);
