@@ -139,7 +139,7 @@ function getClips() {
             $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye"></i> ${clipViews}</div>
+            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews}</div>
             </li>
           `);
           }
