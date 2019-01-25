@@ -440,7 +440,7 @@ function getSubscribers() {
 
 var eventList = [];
 
-function addStreamEvent(avatar, name, type, id, message) {
+function addStreamEvent(avatar, name, age, type, id, message) {
   if (eventList.includes(id)) {
     return;
   }
@@ -464,6 +464,7 @@ function addStreamEvent(avatar, name, type, id, message) {
         <div class="event-author-name"><a style="color:inherit;" href="${userTwitchChannelLink}" target="_blank">${name}</a></div>
         <div class="event-author-type">${type}</div>
         <div class="event-author-message">${message}</div>
+        <div class="event-author-age">${age}</div>
       </div>
     </div>`);
 }
@@ -633,6 +634,24 @@ function getEvents() {
         for (let i=0, len=results; i < len; i++) {
           const eventAvatar = data[i].data.avatar;
           const eventAuthor = data[i].data.username;
+          const eventDate = new Date(Date.now()) - new Date(Date.parse(data[i].createdAt));
+          function timeConvertion(time) {
+            let seconds = (time / 1000).toFixed(0);
+            let minutes = (time / (1000*60)).toFixed(0);
+            let hours = (time / (1000*60*60)).toFixed(0);
+            let days = (time / (1000*60*60*24)).toFixed(0);
+
+            if (seconds < 60) {
+              return seconds + 's';
+            } else if (minutes < 60) {
+              return minutes + 'm';
+            } else if (hours < 24) {
+              return hours + 'h';
+            } else {
+              return days + 'd';
+            }
+          }
+          const eventAge = timeConvertion(eventDate);
           let eventType = data[i].type;
           switch (eventType) {
             case 'tip':
@@ -659,7 +678,7 @@ function getEvents() {
           }
           const message = data[i].data.message;
           const eventID = data[i]._id;
-          addStreamEvent(eventAvatar, eventAuthor, eventType, eventID, message);
+          addStreamEvent(eventAvatar, eventAuthor, eventAge, eventType, eventID, message);
         }
       }
     })
