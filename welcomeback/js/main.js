@@ -103,7 +103,8 @@ function getVideo() {
 
 var clipsDisplayed = [];
 function getClips() {
-  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}`;
+  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}`;
+  const period = "month"; //day, week, month, all
 
   const token = {
     mode: 'cors',
@@ -122,12 +123,15 @@ function getClips() {
         $('.defaultClip').remove();
         
         for (let i=0, len=results; i<len; i++) {
-          // Slugs works as IDs
           const clipSlug = data.clips[i].slug;  
           const clipEmbedUrl = data.clips[i].embed_url;
           const clipThumbnail = data.clips[i].thumbnails.small;
           const clipViews = data.clips[i].views;
           let clipTitle = data.clips[i].title;
+          let clipISODate = data.clips[i].created_at;
+          clipISODate = new Date(Date.parse(clipISODate));
+          const currentDate = new Date();
+          const clipAge = currentDate.getDate() - clipISODate.getDate();
           clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle;
           const clipDuration = data.clips[i].duration;
           let clipCreator = data.clips[i].curator.display_name;
@@ -139,7 +143,7 @@ function getClips() {
             $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews}</div>
+            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge} days</div>
             </li>
           `);
           }
