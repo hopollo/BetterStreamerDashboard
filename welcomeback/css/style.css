@@ -350,7 +350,7 @@ body {
   -ms-grid-rows: 50% 50%;
       grid-template-rows: 50% 50%;
   grid-column-gap: 5px;
-      grid-template-areas: "authorLogo authorName authorMessage" "authorLogo authorType authorMessage";
+      grid-template-areas: "authorLogo authorName authorMessage" "authorLogo authorType authorAge";
 }
 
 .center .event-author-avatar {
@@ -386,10 +386,17 @@ body {
 
 .center .event-author-message {
   -ms-grid-row: 1;
-  -ms-grid-row-span: 2;
   -ms-grid-column: 3;
   grid-area: authorMessage;
   overflow: auto;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.center .event-author-age {
+  -ms-grid-row: 2;
+  -ms-grid-column: 3;
+  grid-area: authorAge;
   text-align: right;
   margin-right: 5px;
 }
