@@ -397,7 +397,11 @@ body {
   -ms-grid-row: 2;
   -ms-grid-column: 3;
   grid-area: authorAge;
-  text-align: right;
+  text-align: center;
+  -ms-flex-item-align: end;
+      -ms-grid-row-align: end;
+      align-self: end;
+  color: grey;
   margin-right: 5px;
 }
 
