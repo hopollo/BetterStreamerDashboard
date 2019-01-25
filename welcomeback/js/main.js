@@ -103,9 +103,9 @@ function getVideo() {
 
 var clipsDisplayed = [];
 function getClips() {
-  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}`;
   const period = "month"; //day, week, month, all
-
+  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}`;
+  
   const token = {
     mode: 'cors',
     headers: {
