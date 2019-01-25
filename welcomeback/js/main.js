@@ -569,9 +569,9 @@ function getUptime() {
       } else {
         const img = '<span class="fas fa-clock"></span>';
         $('.uptime').replaceWith(`<div class="uptime">${img}</div>`);
-        if (data.includes(' hours, ')) {
-          let hours = data.split(' hours, ')[0];
-          let minutes = data.split(' minutes, ')[0].split(' hours, ')[1];
+        if (data.includes(' hours, ') || data.includes(' hour, ')) {
+          let hours = data.split(' h')[0];
+          let minutes = data.split(' h')[1].split(' m')[0].split(', ')[1];
           hours = (hours < 10 ? '0' : '') + hours;
           minutes = (minutes < 10 ? '0' : '') + minutes;
           $('.fa-clock').text(` ${hours}h${minutes}m`);
