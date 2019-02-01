@@ -28,7 +28,9 @@ body {
   background: #2c2c2c;
   -ms-grid-columns: 1f;
       grid-template-columns: 1f;
-      grid-template-areas: "top" "center" "bottom";
+      grid-template-areas: "top"
+ "center"
+ "bottom";
 }
 
 .top {
@@ -321,9 +323,6 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
   background: #faf9fa;
   border: 1px solid #b8b8b8;
 }
@@ -350,7 +349,8 @@ body {
   -ms-grid-rows: 50% 50%;
       grid-template-rows: 50% 50%;
   grid-column-gap: 5px;
-      grid-template-areas: "authorLogo authorName authorMessage" "authorLogo authorType authorAge";
+      grid-template-areas: "authorLogo authorName authorMessage"
+ "authorLogo authorType authorAge";
 }
 
 .center .event-author-avatar {
@@ -545,7 +545,8 @@ body {
     display: grid;
     -ms-grid-columns: 1fr 1fr;
         grid-template-columns: 1fr 1fr;
-        grid-template-areas: "twitch options" "twitch optionnal";
+        grid-template-areas: "twitch options"
+ "twitch optionnal";
   }
   .center .modal-content .options div {
     width: 100%;
@@ -572,6 +573,9 @@ body {
     -ms-flex-preferred-size: 100vw;
         flex-basis: 100vw;
     height: 50%;
+  }
+  .center .module:last-child {
+    margin-bottom: 5px;
   }
   .center .event-container {
     height: 16.66%;
