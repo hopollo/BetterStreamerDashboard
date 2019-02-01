@@ -1,0 +1,476 @@
+$defaultfont: 'Titillium Web', sans-serif;
+
+$defaultLayoutSize: (
+  top: 8vh,
+  center: 87vh,
+  bottom: 5vh,
+);
+
+@function setDefaultHeight($defaultHeight) {
+  @return map-get($defaultLayoutSize, $defaultHeight);
+}
+
+$colors: (
+  backgroundMain: rgb(44, 44, 44),
+  backgroundBanners : rgb(20,20,20),
+  discord: #7289da,
+  linkColor: white,
+  linkHighlight : red,
+);
+
+@function setColor($colorName) {
+  @return map-get($colors, $colorName);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+li { list-style: none; }
+
+a { text-decoration: none; color: setColor(linkColor); }
+a:hover,
+a:visited { color: setColor(link-color); }
+
+.fa-pen,
+.userLogo,
+.discord,
+.preferences,
+.lock { cursor: pointer; }
+
+
+body {
+  font-family: $defaultfont;
+  overflow: hidden;
+  background: setColor(backgroundMain);
+  grid-template-columns: 1f;
+  grid-template-areas:
+  "top"
+  "center"
+  "bottom";
+}
+
+.top {
+  display: none;
+  font-weight: bold;
+  grid-area: top;
+  height: setDefaultHeight(top);
+  color: setColor(linkColor);
+  background: setColor(backgroundBanners);
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+
+  .userLogo {
+    order: 1;
+    max-height: setDefaultHeight(top);
+    width: auto; /* to keep image aspect-ratio */
+  }
+
+  .discord {
+    order: 2;
+    height: setDefaultHeight(top);
+    display: flex;
+
+    & i {
+      align-self: center;
+    }
+
+    iframe {
+      display: none;
+      position: absolute;
+      z-index: 999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    &:hover {
+      i { color: setColor(discord); }
+    }
+  }
+
+  .settings {
+    order: 3;
+    display: flex;
+    button {
+      width: 5em;
+    }
+  }
+
+  .streamTitle {
+    order: 4;
+  }
+
+  .streamGame {
+    order: 5;
+  }
+
+  .streamTitle, .streamGame { align-self: center;}
+}
+
+.center {
+  grid-area: center;
+  display: flex;
+  height: setDefaultHeight(center);
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  .modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 60%;
+  }
+  
+  .streamInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .options {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  .game-image-thumbnail { max-height: 100px; max-height: 100px; }
+  
+  .options { display: flex; }
+  .options-family { width: 100%; text-align: center; }
+  .options > div { width: 35%; }
+  .options > div:not(:last-child) { border-right: grey 1px solid; }
+  .others-options input { width: 90%; }
+  .options-item-streamElementsInfo { color: white; }
+  .optionnals-options > *:not(span) { display: none; }
+  
+  /* TODO Change the .new to a bonus class for element:after */
+  .new { margin-left : 20px; color: orange; font-weight: bold; }
+  
+  .button-container {
+    margin-left: auto;
+    margin-right: auto;
+    height: 50px;
+    width: 90px;
+  }
+  
+  .button {
+    height: 100%; 
+    width: 100%;
+    cursor: pointer;
+  }
+  
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .streamTitle { grid-area: streamTitle; }
+  
+  .streamGame { grid-area: streamGame; }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    cursor: wait;
+  }
+  
+  .gear {
+    border: 10px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid #ff0000;
+    height: 10vh;
+    width: 10vh;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+  }
+  
+  .module {
+    background: lightgrey;
+    position: relative;
+    height: 100%;
+    width: calc(100vw/4);
+    transform: translateY(50%, -50%);
+  }
+  
+  .handle {
+    display: none;
+    border: 1px black solid;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    cursor: move;
+    opacity: .3;
+    background: linear-gradient(#030303, #4d4e57);
+  }
+  
+  iframe {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .clips {
+    flex-wrap: wrap;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #faf9fa;
+    border: 1px solid #b8b8b8;
+  }
+  
+  /*
+   style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
+  */
+  
+  .events { overflow: auto; }
+  
+  .event-container {
+    height: 10%;
+    width: 100%;
+    background:white;
+    border-radius: 5px;
+    border: 1px solid #b9b9b9;
+  }
+  
+  .event-author-info {
+    height: 100%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 5em auto auto;
+    grid-template-rows: 50% 50%;
+    grid-column-gap: 5px;
+    grid-template-areas:
+    "authorLogo authorName authorMessage"
+    "authorLogo authorType authorAge"
+  }
+  
+  .event-author-avatar {
+    grid-area: authorLogo;
+    border-radius: 5%;
+    height: 100%;
+    width: auto;
+  }
+  
+  .event-author-name { grid-area: authorName; align-self: center; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+  .event-author-type { grid-area: authorType; align-self: center; }
+  .event-author-message { grid-area: authorMessage; overflow: auto; text-align: right; margin-right: 5px; }
+  .event-author-age { grid-area: authorAge; text-align: right; align-self: end; color: grey; margin-right: 5px; }
+  .fa-quote-right, .fa-quote-left { font-size: 8px; }
+  
+  .clipTitle, .clipCreatorName { display: flex; color: black; }
+}
+
+.bottom {
+  display: none;
+  grid-area: bottom;
+  font-weight: bold;
+  height: setDefaultHeight(bottom);
+  color: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: setColor(backgroundBanners);
+
+  .views { order: 1; }
+  .uptime { order: 2; }
+  .followers { order: 3; }
+  .viewers { order: 4; }
+}
+
+/* all commons tablets */
+@media only screen and (min-width: 600px) and (max-width: 1100px) and (orientation: portrait) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+  
+  .center {
+    height: 91vh;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    .module {
+      height: 50%;
+      width: 50vw;
+    }
+  }
+
+  .bottom {
+    height : 4vh;
+  }
+}
+
+@media only screen and (min-width: 800px) and (max-width: 1400px) and (orientation: landscape) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+
+  .center {
+    height: 91vh;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(33.33vw, 1fr));
+    grid-template-rows: 1fr 1fr;
+
+    .module {
+      width: 100%;
+    }
+
+    .event-container {
+      height: 9%;
+    }
+
+    .chat, .events {
+      grid-row: 1/3;
+    }
+  }
+
+  .bottom {
+    height: 4vh;
+  }
+}
+
+/* all commons phones */
+@media only screen and (min-width: 300px) and (max-width: 500px) and (orientation: portrait) {
+  body {
+    overflow-y: scroll;
+  }
+
+  .top, .userLogo {
+    height: 4vh;
+  }
+
+  .settings {
+    width: 80px;
+  }
+  .streamTitle {
+    display: none;
+  }
+  .streamGame {
+    font-size: .7em;
+  }
+
+  .center {
+    display: flex;
+    flex-wrap: wrap;
+
+    .modal-content {
+      width: 100vw;
+      
+      .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+        "twitch options"
+        "twitch optionnal";
+
+        div {
+          width: 100%;
+          border-right: none;
+        }
+      }
+
+      .twitch-options {
+        grid-area: twitch;
+      }
+      .others-options {
+        grid-area: options;
+      }
+      .optionnals-options {
+        grid-area: optionnal;
+        display: none;
+      }
+    }
+
+    .module {
+      flex-basis: 100vw;
+      height: 50%;
+    }
+
+    .event-container {
+      height: 16.66%;
+      
+      .event-author-name, .event-author-type {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  .bottom {
+    height: 3vh;
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+  }
+}
+
+@media only screen and (min-width: 500px) and (max-width: 900px) and (orientation: landscape) {
+  .top, .userLogo {
+    height: 5vh;
+  }
+  
+  .settings {
+    button {
+      align-self: center;
+      height: 30px;
+      width: auto;
+    }
+  }
+
+  .streamTitle {
+    display: none;
+  }
+
+  .streamTitle, .streamGame {
+    font-size: .8em;
+  }
+
+  .center {
+    height: 91vh;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(33.33vw, 1fr));
+    grid-template-rows: 1fr;
+
+    .module {
+      height: 50%;
+      width: 100%;
+    }
+
+    .chat, .events {
+      height: 100%;
+    }
+
+  }
+
+  .bottom {
+    height: 4vh;
+  }
+}
