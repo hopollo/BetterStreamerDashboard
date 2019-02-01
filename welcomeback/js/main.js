@@ -592,7 +592,7 @@ function getUptime() {
           minutes = (minutes < 10 ? '0' : '') + minutes;
           $('.fa-clock').text(` ${hours}h${minutes}m`);
         }
-        else if (data.includes(' minutes, ') || data.includes(' hour, ')) {
+        else if (data.includes(' minutes, ') || data.includes(' minute, ')) {
           let minutes = data.split(' m')[0];
           minutes = (minutes < 10 ? '0' : '') + minutes;
           $('.fa-clock').text(` ${minutes}m`);        
