@@ -11,9 +11,7 @@ $(window).ready(() => {
 });
 
 function authenticate() {
-  let token = window.location.hash;
-  token = token.split('=')[1];
-  token = token.split('&')[0];
+  const token = window.location.hash.split('=')[1].split('&')[0];
  
   function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -23,8 +21,7 @@ function authenticate() {
   };
 
   function parseJwt (token) {
-    const base64Url = token.split('.')[1];
-    let base64 = base64Url.replace('-', '+').replace('_', '/');
+    const base64 = token.split('.')[1].replace('-', '+').replace('_', '/');
     return JSON.parse(window.atob(base64));
   };
 
@@ -32,8 +29,8 @@ function authenticate() {
   let decodedJWT = parseJwt(JWT);
 
   clientID = decodedJWT.aud;
-  userAuth = "Bearer " + token;
-  userOAuth = "OAuth " + token;
+  userAuth = `Bearer ${token}`;
+  userOAuth = `OAuth ${token}`;
   userID = decodedJWT.sub;
   displayName = decodedJWT.preferred_username;
 
@@ -128,11 +125,26 @@ function getClips() {
           const clipThumbnail = data.clips[i].thumbnails.small;
           const clipViews = data.clips[i].views;
           let clipTitle = data.clips[i].title;
-          let clipISODate = data.clips[i].created_at;
-          clipISODate = new Date(Date.parse(clipISODate));
-          const currentDate = new Date();
-          const clipAge = currentDate.getDate() - clipISODate.getDate();
-          clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle;
+          clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle; 
+          const clipDate = new Date(Date.now()) - new Date(Date.parse(data.clips[i].created_at));
+          function timeConvertion(time) {
+            let seconds = (time / 1000).toFixed(0);
+            let minutes = (time / (1000*60)).toFixed(0);
+            let hours = (time / (1000*60*60)).toFixed(0);
+            let days = (time / (1000*60*60*24)).toFixed(0);
+
+            if (seconds < 60) {
+              return seconds + 's';
+            } else if (minutes < 60) {
+              return minutes + 'm';
+            } else if (hours < 24) {
+              return hours + 'h';
+            } else {
+              return days + 'd';
+            }
+          }
+          const clipAge = timeConvertion(clipDate);
+          console.log(`Clip Age : ${clipAge}`);
           const clipDuration = data.clips[i].duration;
           let clipCreator = data.clips[i].curator.display_name;
           clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
@@ -143,7 +155,7 @@ function getClips() {
             $('.clipsList').prepend(`
             <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
             <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge} days</div>
+            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge}</div>
             </li>
           `);
           }
@@ -439,7 +451,6 @@ function getSubscribers() {
 }
 
 var eventList = [];
-
 function addStreamEvent(avatar, name, age, type, id, message) {
   if (eventList.includes(id)) {
     return;
@@ -457,7 +468,7 @@ function addStreamEvent(avatar, name, age, type, id, message) {
   
   const userTwitchChannelLink = `https://www.twitch.tv/${name}`;
   
-  $('.events').prepend(`
+  $('.events').append(`
     <div class="event-container">
       <div class="event-author-info">
         <img class="event-author-avatar" style="cursor:pointer;" src="${avatar}" onclick="window.open('${userTwitchChannelLink}')">
@@ -581,10 +592,10 @@ function getUptime() {
           minutes = (minutes < 10 ? '0' : '') + minutes;
           $('.fa-clock').text(` ${hours}h${minutes}m`);
         }
-        else {
-          let minutes = data.split(' minutes, ')[0];
+        else if (data.includes(' minutes, ') || data.includes(' hour, ')) {
+          let minutes = data.split(' m')[0];
           minutes = (minutes < 10 ? '0' : '') + minutes;
-          $('.fa-clock').text(` ${minutes}m`);          
+          $('.fa-clock').text(` ${minutes}m`);        
         }
       }
     })
@@ -625,7 +636,7 @@ function getEvents() {
 
   fetch(url, token)
     .then(res => res.json())
-    .then(data => data.reverse())
+    .then(data => data)
     .then(data => {
       const results = data.length;
 
