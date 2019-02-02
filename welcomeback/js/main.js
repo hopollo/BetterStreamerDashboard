@@ -468,7 +468,7 @@ function addStreamEvent(avatar, name, age, type, id, message) {
   
   const userTwitchChannelLink = `https://www.twitch.tv/${name}`;
   
-  $('.events').append(`
+  $('.eventsList').prepend(`
     <div class="event-container">
       <div class="event-author-info">
         <img class="event-author-avatar" style="cursor:pointer;" src="${avatar}" onclick="window.open('${userTwitchChannelLink}')">
@@ -636,9 +636,10 @@ function getEvents() {
 
   fetch(url, token)
     .then(res => res.json())
-    .then(data => data)
+    .then(data => data.reverse())
     .then(data => {
       const results = data.length;
+      console.log(data);
 
       if (results != 0) {
         $('.defaultEvent').remove();
@@ -751,6 +752,7 @@ function createEvents() {
   $('.center').append(`
     <div class="module events">
       <div class="handle"></div>
+      <div class="eventsList"></div>
     </div>`);
   
   if ($('.options-item-streamElementsInfo').val().length > 30) {
