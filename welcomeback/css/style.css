@@ -348,8 +348,8 @@ body {
   width: 100%;
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 5em auto auto;
-      grid-template-columns: 5em auto auto;
+  -ms-grid-columns: .5fr 1fr 1.5fr;
+      grid-template-columns: .5fr 1fr 1.5fr;
   -ms-grid-rows: 50% 50%;
       grid-template-rows: 50% 50%;
   grid-column-gap: 5px;
