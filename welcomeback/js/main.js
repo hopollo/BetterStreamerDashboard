@@ -100,7 +100,12 @@ function getVideo() {
 
 var clipsDisplayed = [];
 function getClips() {
-  const period = "month"; //day, week, month, all
+  let period;
+  if (document.cookie.includes('ClipsSort=')) {
+    period = document.cookie.split('ClipsSort=')[1].split(';')[0];
+    $('#clipsSort').val(period);
+  } else { period = "month"; }
+
   const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}`;
   
   const token = {
@@ -117,7 +122,7 @@ function getClips() {
       const results = data.clips.length;
 
       if (results != 0) {
-        $('.defaultClip').remove();
+        $('.defaultClip').hide();
         
         for (let i=0, len=results; i<len; i++) {
           const clipSlug = data.clips[i].slug;  
@@ -130,8 +135,9 @@ function getClips() {
           function timeConvertion(time) {
             let seconds = (time / 1000).toFixed(0);
             let minutes = (time / (1000*60)).toFixed(0);
-            let hours = (time / (1000*60*60)).toFixed(0);
-            let days = (time / (1000*60*60*24)).toFixed(0);
+            let hours   = (time / (1000*60*60)).toFixed(0);
+            let days    = (time / (1000*60*60*24)).toFixed(0);
+            let years   = (time / (1000*60*60*24*360)).toFixed(0);
 
             if (seconds < 60) {
               return seconds + 's';
@@ -139,12 +145,13 @@ function getClips() {
               return minutes + 'm';
             } else if (hours < 24) {
               return hours + 'h';
-            } else {
+            } else if (days < 360) {
               return days + 'd';
+            } else {
+              return years + 'y'; 
             }
           }
           const clipAge = timeConvertion(clipDate);
-          console.log(`Clip Age : ${clipAge}`);
           const clipDuration = data.clips[i].duration;
           let clipCreator = data.clips[i].curator.display_name;
           clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
@@ -153,15 +160,18 @@ function getClips() {
           else {
             clipsDisplayed.push(clipSlug);
             $('.clipsList').prepend(`
-            <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
-            <div class="clipTitle">${clipTitle}</div>
-            <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge}</div>
-            </li>
-          `);
+              <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
+                <div class="clipTitle">${clipTitle}</div>
+                <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge}</div>
+              </li>
+            `);
           }
         }
+      } else {
+        $('.defaultClip').show();
       }
     });
+    $('#clipsSort').css('display', 'block');
 }
 
 function getSettings() {
@@ -254,8 +264,9 @@ function saveData() {
   let followers = $('.options-item-twitchFollowers').is(':checked');
   let subscribers = $('.options-item-twitchSubscribers').is(':checked');
   let vibrations = $('.options-items-vibrations').is('checked');
+  let clipsSort = $('#clipsSort').val();
 
-  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations}`;
+  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};ClipsSort=${clipsSort};`;
   //TODO ADD cookies to save user choises (windows positions);
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
     document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
@@ -520,7 +531,7 @@ function getTitleAndGame() {
 
 function getGameImage() {
   const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif"
-  let currentGame = $('.gameLabel').val();
+  const currentGame = $('.gameLabel').val();
   $('.game-label-state').replaceWith(`<i class="game-label-state"><img class="game-image-loading"src="${loadingGif}" height="16px" width="16px"></i>`);
   const settings = {
     headers : {
@@ -639,7 +650,6 @@ function getEvents() {
     .then(data => data.reverse())
     .then(data => {
       const results = data.length;
-      console.log(data);
 
       if (results != 0) {
         $('.defaultEvent').remove();
@@ -731,14 +741,17 @@ function createClips() {
   $('.center').append(`
     <div class="module clips">
       <div class="handle"></div>
+      <select id="clipsSort">
+        <option value="week">Week</option>
+        <option value="month">Month</option>
+        <option value="all">All</option>
+      </select>
       <div class="clipsList">
-        <div class="defaultClip">
-          <div style="display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i><div>
-          <h1 style="color:black;">No clips yet</h1>
-        </div>
+        <div class="defaultClip" style="color:black; display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i>No clips yet</div>
       </div>
     </div>
   `);
+
   getClips();
 
   try {
@@ -847,7 +860,6 @@ function removeSubscribers() {
 }
 
 function applyClassicMode() {
-
 }
 
 function applyAutoMode() {
@@ -855,7 +867,10 @@ function applyAutoMode() {
 }
 
 function applyDarkMode() {
-
+  $('.module').css({
+    'background':'black',
+    'color':'white'
+  });
 }
 
 function welcome() {
@@ -970,6 +985,17 @@ function logged() {
       default:
       case 'classic':
         applyClassicMode();
+        break;
+    }
+  });
+
+  $('select').change(function() {
+    switch(this['id']) {
+      case 'clipsSort':
+        $('.clipsList').find('li').remove();
+        clipsDisplayed = [];
+        saveData();
+        getClips();
         break;
     }
   });
