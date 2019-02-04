@@ -39,7 +39,7 @@ body {
   -ms-grid-row: 1;
   -ms-grid-column: 1;
   grid-area: top;
-  height: 8vh;
+  height: 5vh;
   color: white;
   background: #141414;
   text-align: center;
@@ -55,7 +55,7 @@ body {
   -webkit-box-ordinal-group: 2;
       -ms-flex-order: 1;
           order: 1;
-  max-height: 8vh;
+  max-height: 5vh;
   width: auto;
   /* to keep image aspect-ratio */
 }
@@ -64,7 +64,7 @@ body {
   -webkit-box-ordinal-group: 3;
       -ms-flex-order: 2;
           order: 2;
-  height: 8vh;
+  height: 5vh;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -128,11 +128,8 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  height: 87vh;
+  height: 92vh;
   /* TODO Change the .new to a bonus class for element:after */
-  /*
-   style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
-  */
 }
 
 .center .modal {
@@ -327,6 +324,13 @@ body {
   border: 1px solid #b8b8b8;
 }
 
+.center .clips #clipsSort {
+  display: none;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
 .center .events {
   overflow: auto;
 }
@@ -422,7 +426,7 @@ body {
   -ms-grid-column: 1;
   grid-area: bottom;
   font-weight: bold;
-  height: 5vh;
+  height: 3vh;
   color: white;
   display: -webkit-box;
   display: -ms-flexbox;
