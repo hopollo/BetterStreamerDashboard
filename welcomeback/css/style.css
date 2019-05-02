@@ -1,3 +1,4 @@
+@charset "UTF-8";
 * {
   margin: 0;
   padding: 0;
@@ -60,10 +61,22 @@ body {
   /* to keep image aspect-ratio */
 }
 
-.top .discord {
+.top .alerts {
   -webkit-box-ordinal-group: 3;
       -ms-flex-order: 2;
           order: 2;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-self: center;
+  -ms-flex-item-align: center;
+      align-self: center;
+}
+
+.top .discord {
+  -webkit-box-ordinal-group: 4;
+      -ms-flex-order: 3;
+          order: 3;
   height: 5vh;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -91,9 +104,9 @@ body {
 }
 
 .top .settings {
-  -webkit-box-ordinal-group: 4;
-      -ms-flex-order: 3;
-          order: 3;
+  -webkit-box-ordinal-group: 5;
+      -ms-flex-order: 4;
+          order: 4;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -104,15 +117,15 @@ body {
 }
 
 .top .streamTitle {
-  -webkit-box-ordinal-group: 5;
-      -ms-flex-order: 4;
-          order: 4;
-}
-
-.top .streamGame {
   -webkit-box-ordinal-group: 6;
       -ms-flex-order: 5;
           order: 5;
+}
+
+.top .streamGame {
+  -webkit-box-ordinal-group: 7;
+      -ms-flex-order: 6;
+          order: 6;
 }
 
 .top .streamTitle, .top .streamGame {
@@ -211,10 +224,6 @@ body {
 
 .center .options-item-streamElementsInfo {
   color: white;
-}
-
-.center .optionnals-options > *:not(span) {
-  display: none;
 }
 
 .center .new {
@@ -324,11 +333,38 @@ body {
   border: 1px solid #b8b8b8;
 }
 
+.center .clips select {
+  width: 70px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  left: 10px;
+  position: absolute;
+}
+
 .center .clips #clipsSort {
   display: none;
-  position: absolute;
-  left: 10px;
   top: 10px;
+}
+
+.center .clips #clipsSortType {
+  top: 35px;
+}
+
+.center .clips .clipInfo > *:not(:last-child):after {
+  content: ' • ';
+}
+
+.center .clips .clipTitle, .center .clips .clipCreatorName {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  color: black;
+  text-overflow: ellipsis;
+}
+
+.center .clips .clipCreator:hover {
+  color: gray;
 }
 
 .center .events {
@@ -411,13 +447,6 @@ body {
 
 .center .fa-quote-right, .center .fa-quote-left {
   font-size: 8px;
-}
-
-.center .clipTitle, .center .clipCreatorName {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  color: black;
 }
 
 .bottom {
@@ -571,7 +600,6 @@ body {
     -ms-grid-row: 2;
     -ms-grid-column: 2;
     grid-area: optionnal;
-    display: none;
   }
   .center .module {
     -ms-flex-preferred-size: 100vw;
