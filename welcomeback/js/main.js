@@ -260,8 +260,8 @@ function saveData() {
   let viewers = $('.options-item-viewers').is(':checked');
   let followers = $('.options-item-twitchFollowers').is(':checked');
   let subscribers = $('.options-item-twitchSubscribers').is(':checked');
-  let darkMode = $('.options-item-darkMode').is('checked');
-  let vibrations = $('.options-items-vibrations').is('checked');
+  let darkMode = $('.options-item-darkMode').is(':checked');
+  let vibrations = $('.options-items-vibrations').is(':checked');
   let clipsSort = $('#clipsSort').val();
 
   const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};Transcoding=${transcoding};ClipsSort=${clipsSort};DarkMode=${darkMode};`;
@@ -332,7 +332,7 @@ function readData() {
   if (cookieData.includes("Viewers=true"))      { createViewers();     }
   if (cookieData.includes("Followers=true"))    { createFollowers();   }
   if (cookieData.includes("Subscribers=true"))  { createSubscribers(); }
-  if (cookieData.includes("DarkMode=true"))     { applyDarkMode();     }
+  if (cookieData.includes("DarkMode=true"))     { applyDarkMode(true); }
   if (cookieData.includes("Vibrations=true"))   { createVibrations();  }
 }
 
@@ -859,9 +859,16 @@ function removeSubscribers() {
   $('.subscribers').remove();
 }
 
-function applyDarkMode() {
-  $('.module').css({ 'background':'black', 'color':'white'});
-  $('.event-container').css('background', 'black');
+function applyDarkMode(bool) {
+  /**TODO (HoPollo)
+   * Add just the ?darkpopout of tchat instead of whole link
+  */
+  if (bool) {
+    $('#chat_embed').attr('src', `https://www.twitch.tv/embed/${displayName}/chat?darkpopout`);
+    $('.module').css({'background':'black', 'color':'white'});
+  } else {
+    $('.module').css({'background':'white', 'color':'black'});
+  }
 }
 
 function welcome() {
@@ -931,7 +938,7 @@ function logged() {
           createSubscribers();
           break;
         case 'options-item-darkMode':
-          applyDarkMode();
+          applyDarkMode(true);
           break;
       }
     }
@@ -963,6 +970,9 @@ function logged() {
           break;
         case 'options-item-twitchSubscribers':
           removeSubscribers();
+          break;
+        case 'options-item-darkMode':
+          applyDarkMode(false);
           break;
       }
     }
