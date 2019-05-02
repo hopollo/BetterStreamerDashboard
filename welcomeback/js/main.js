@@ -968,21 +968,6 @@ function logged() {
     }
   });
 
-  $('input:radio').change(function() {
-    switch(this['id']) {
-      case 'auto':
-        applyAutoMode();
-        break;
-      case 'dark':
-        applyDarkMode();
-        break;
-      default:
-      case 'classic':
-        applyClassicMode();
-        break;
-    }
-  });
-
   $('select').change(function() {
     switch(this['id']) {
       case 'clipsSort':
