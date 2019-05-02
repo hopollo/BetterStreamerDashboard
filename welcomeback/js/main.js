@@ -202,18 +202,15 @@ function getSettings() {
     <li>Discord Server ID : <input type="text" class="options-item-discordInfo"> <a href="https://cdn.discordapp.com/attachments/331192523856805890/531505436374073374/unknown.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
   </div>
   <div class="optionnals-options">
-  <i class="fas fa-cogs options-family"></i>
-    <li style="display:none;">
-      <p>Ligth-mode :</p>
-      <input type="radio" id="classic" name="light" value="light" class="test1"> <label for="classic">Classic</label>
-      <input type="radio" id="auto" name="light" value="auto" class="test1" checked> <label for="auto">Auto</label>
-      <input type="radio" id="dark" name="light" value="dark" class="test1"> <label for="dark">Dark</label>
-    </li>
-    <li>
-      <input type="checkbox" class="options-item-vibrations" checked> Event vibrations</input>
-    </li>
-    <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
-  </div>`);
+    <i class="fas fa-cogs options-family"></i>
+      <li>
+        <input type="checkbox" class="options-item-darkMode"> <label for="classic">Dark mode</label>
+      </li>
+      <li style="display: none;">
+        <input type="checkbox" class="options-item-vibrations" checked> Event vibrations</input>
+      </li>
+      <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
+    </div>`);
 
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
 
@@ -263,10 +260,11 @@ function saveData() {
   let viewers = $('.options-item-viewers').is(':checked');
   let followers = $('.options-item-twitchFollowers').is(':checked');
   let subscribers = $('.options-item-twitchSubscribers').is(':checked');
+  let darkMode = $('.options-item-darkMode').is('checked');
   let vibrations = $('.options-items-vibrations').is('checked');
   let clipsSort = $('#clipsSort').val();
 
-  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};ClipsSort=${clipsSort};`;
+  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};Transcoding=${transcoding};ClipsSort=${clipsSort};DarkMode=${darkMode};`;
   //TODO ADD cookies to save user choises (windows positions);
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
     document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
@@ -321,6 +319,7 @@ function readData() {
   $('.options-item-viewers').prop('checked', cookieData.includes("Viewers=true"));
   $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
   $('.options-item-twitchSubscribers').prop('checked', cookieData.includes("Subscribers=true"));
+  $('.options-item-darkMode').prop('checked', cookieData.includes("DarkMode=true"));
   $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"));
 
   if (cookieData.includes("Discord="))          { createDiscord();     }
@@ -333,6 +332,7 @@ function readData() {
   if (cookieData.includes("Viewers=true"))      { createViewers();     }
   if (cookieData.includes("Followers=true"))    { createFollowers();   }
   if (cookieData.includes("Subscribers=true"))  { createSubscribers(); }
+  if (cookieData.includes("DarkMode=true"))     { applyDarkMode();     }
   if (cookieData.includes("Vibrations=true"))   { createVibrations();  }
 }
 
@@ -859,18 +859,9 @@ function removeSubscribers() {
   $('.subscribers').remove();
 }
 
-function applyClassicMode() {
-}
-
-function applyAutoMode() {
-
-}
-
 function applyDarkMode() {
-  $('.module').css({
-    'background':'black',
-    'color':'white'
-  });
+  $('.module').css({ 'background':'black', 'color':'white'});
+  $('.event-container').css('background', 'black');
 }
 
 function welcome() {
@@ -938,6 +929,9 @@ function logged() {
           break;
         case 'options-item-twitchSubscribers':
           createSubscribers();
+          break;
+        case 'options-item-darkMode':
+          applyDarkMode();
           break;
       }
     }
