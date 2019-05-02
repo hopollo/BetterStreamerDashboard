@@ -1,9 +1,9 @@
 $defaultfont: 'Titillium Web', sans-serif;
 
 $defaultLayoutSize: (
-  top: 8vh,
-  center: 87vh,
-  bottom: 5vh,
+  top: 5vh,
+  center: 92vh,
+  bottom: 3vh,
 );
 
 @function setDefaultHeight($defaultHeight) {
@@ -69,8 +69,15 @@ body {
     width: auto; /* to keep image aspect-ratio */
   }
 
-  .discord {
+  .alerts {
     order: 2;
+    display: flex;
+    justify-self: center;
+    align-self: center;
+  }
+
+  .discord {
+    order: 3;
     height: setDefaultHeight(top);
     display: flex;
 
@@ -93,7 +100,7 @@ body {
   }
 
   .settings {
-    order: 3;
+    order: 4;
     display: flex;
     button {
       width: 5em;
@@ -101,11 +108,11 @@ body {
   }
 
   .streamTitle {
-    order: 4;
+    order: 5;
   }
 
   .streamGame {
-    order: 5;
+    order: 6;
   }
 
   .streamTitle, .streamGame { align-self: center;}
@@ -158,7 +165,6 @@ body {
   .options > div:not(:last-child) { border-right: grey 1px solid; }
   .others-options input { width: 90%; }
   .options-item-streamElementsInfo { color: white; }
-  .optionnals-options > *:not(span) { display: none; }
   
   /* TODO Change the .new to a bonus class for element:after */
   .new { margin-left : 20px; color: orange; font-weight: bold; }
@@ -242,15 +248,29 @@ body {
     overflow: auto;
     display: flex;
     justify-content: center;
-    align-items: center;
     background: #faf9fa;
     border: 1px solid #b8b8b8;
+
+    select {
+      width: 70px; 
+      display: flex;
+      left: 10px;
+      position: absolute;
+    }
+    #clipsSort {
+      display: none;
+      top: 10px;
+    }
+    #clipsSortType {
+      top: 35px;
+    }
+
+    .clipInfo > *:not(:last-child):after { content: ' • '; }
+
+    .clipTitle, .clipCreatorName { display: flex; color: black; text-overflow: ellipsis; }
+    .clipCreator:hover { color: gray; }
   }
-  
-  /*
-   style="heigth:10%; width:100%; background:white; border-radius:5px; border:1px solid #b9b9b9;"
-  */
-  
+
   .events { overflow: auto; }
   
   .event-container {
@@ -265,7 +285,7 @@ body {
     height: 100%;
     width: 100%;
     display: grid;
-    grid-template-columns: 5em auto auto;
+    grid-template-columns: .5fr 1fr 1.5fr;
     grid-template-rows: 50% 50%;
     grid-column-gap: 5px;
     grid-template-areas:
@@ -285,8 +305,6 @@ body {
   .event-author-message { grid-area: authorMessage; overflow: auto; text-align: right; margin-right: 5px; }
   .event-author-age { grid-area: authorAge; text-align: right; align-self: end; color: grey; margin-right: 5px; }
   .fa-quote-right, .fa-quote-left { font-size: 8px; }
-  
-  .clipTitle, .clipCreatorName { display: flex; color: black; }
 }
 
 .bottom {
@@ -406,13 +424,16 @@ body {
       }
       .optionnals-options {
         grid-area: optionnal;
-        display: none;
       }
     }
 
     .module {
       flex-basis: 100vw;
       height: 50%;
+    }
+
+    .module:last-child {
+        margin-bottom: 5px;
     }
 
     .event-container {
@@ -467,7 +488,6 @@ body {
     .chat, .events {
       height: 100%;
     }
-
   }
 
   .bottom {
