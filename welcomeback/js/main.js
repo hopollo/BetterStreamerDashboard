@@ -42,6 +42,7 @@ function timeConvertion(time) {
   let minutes = (time / (1000*60)).toFixed(0);
   let hours = (time / (1000*60*60)).toFixed(0);
   let days = (time / (1000*60*60*24)).toFixed(0);
+  let years = (time / (1000*60*60*24*30*12)).toFixed(0);
 
   if (seconds < 60) {
     return seconds + 's';
@@ -49,8 +50,10 @@ function timeConvertion(time) {
     return minutes + 'm';
   } else if (hours < 24) {
     return hours + 'h';
-  } else {
+  } else if (days < 30) {
     return days + 'd';
+  } else if (days > 365) {
+    return years + 'y';
   }
 }
 
@@ -182,7 +185,7 @@ function getClips() {
             <div class="clipInfo">
               <span class="clipCreator"><a style="color:inherit;" href="https://twitch.tv/${clips[i].creator}" target="_blank">${clips[i].creator}</a></span>
               <span class="clipDuration">${clips[i].duration}s</span>
-              <span class="clipViews"><i class="fas fa-eye" style="align-self:center"></i> ${clips[i].views} </span> 
+              <span class="clipViews"><i class="fas fa-eye"></i> ${clips[i].views} </span> 
               <span class="clipAge">${clips[i].date.age}</span>
             </div>
           </li>
@@ -765,16 +768,18 @@ function createClips() {
   $('.center').append(`
     <div class="module clips">
       <div class="handle"></div>
-      <select id="clipsSort">
-        <option value="day">Day</option>
-        <option value="week">Week</option>
-        <option value="month">Month</option>
-        <option value="all">All</option>
-      </select>
-      <select id="clipsSortType">
-        <option value="date">Date</option>
-        <option value="views">Views</option>
-      </select>
+      <div class="clipsSortButtons">
+        <select id="clipsSort">
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+          <option value="all">All</option>
+        </select>
+        <select id="clipsSortType">
+          <option value="date">Date</option>
+          <option value="views">Views</option>
+        </select>
+      </div>
       <div class="clipsList">
         <div class="defaultClip" style="color:black; display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i>No clips yet</div>
       </div>
