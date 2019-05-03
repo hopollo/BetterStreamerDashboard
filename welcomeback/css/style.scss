@@ -265,9 +265,9 @@ body {
       top: 35px;
     }
 
+    .clipThumbnail a img { width: 100%; }
     .clipInfo > *:not(:last-child):after { content: ' • '; }
-
-    .clipTitle, .clipCreatorName { display: flex; color: black; text-overflow: ellipsis; }
+    .clipTitle, .clipCreatorName { color: black; text-overflow: ellipsis; }
     .clipCreator:hover { color: gray; }
   }
 
