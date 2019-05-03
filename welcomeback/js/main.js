@@ -37,6 +37,23 @@ function authenticate() {
   logged();
 }
 
+function timeConvertion(time) {
+  let seconds = (time / 1000).toFixed(0);
+  let minutes = (time / (1000*60)).toFixed(0);
+  let hours = (time / (1000*60*60)).toFixed(0);
+  let days = (time / (1000*60*60*24)).toFixed(0);
+
+  if (seconds < 60) {
+    return seconds + 's';
+  } else if (minutes < 60) {
+    return minutes + 'm';
+  } else if (hours < 24) {
+    return hours + 'h';
+  } else {
+    return days + 'd';
+  }
+}
+
 let modules = {
   twitchVideo : false,
   twitchClips : true,
@@ -46,12 +63,14 @@ let modules = {
   twitchViews: true,
   twitchViewers: true,
   twitchSubscribers: false,
+  twitchTranscoding: true,
   twitchFollowers: true,
 }
 
 function getStatic() {
-  $('.top').append('<div class="streamTitle"></div>')
-  $('.top').append('<div class="streamGame"></div>')
+  $('.top').append('<div class="streamTitle"></div>');
+  $('.top').append('<div class="alerts"></div>');
+  $('.top').append('<div class="streamGame"></div>');
   $('.top').append('<div class="settings"></div>');
   $('.settings').append(`<button class="preferences"></button>`);
   $('.settings').append(`<button class="lock"></button>`);
@@ -67,6 +86,7 @@ function updateModules() {
   if (modules.twitchViewers)     { getViewers();     }
   if (modules.twitchFollowers)   { getFollowers();   }
   if (modules.twitchSubscribers) { getSubscribers(); }
+  if (modules.twitchTranscoding) { getTranscoding(); }
   if (modules.twitchEvents)      { getEvents();      }
 }
 
@@ -98,15 +118,28 @@ function getVideo() {
   `);
 }
 
-var clipsDisplayed = [];
+var clips = [];
 function getClips() {
+  /* TODO (hopollo) : 
+  [] Add on CSS the ... if title and/or all clips info are longer than the clip thumbnail width
+  [] Fix duplicating clips
+  [] Fix date sort issue
+  [] Add warning message to show if noclips (period = day)
+  */
   let period;
+  let sort;
+
   if (document.cookie.includes('ClipsSort=')) {
     period = document.cookie.split('ClipsSort=')[1].split(';')[0];
     $('#clipsSort').val(period);
-  } else { period = "month"; }
+  } else { period = $('#clipsSort').val(); }
 
-  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}`;
+  if (document.cookie.includes('ClipsSortType=')) {
+    sort = document.cookie.split('ClipsSortType=')[1].split(';')[0];
+    $('#clipsSortType').val(sort);
+  } else { sort = $('#clipsSortType').val(); }
+
+  const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=100`;
   
   const token = {
     mode: 'cors',
@@ -120,55 +153,40 @@ function getClips() {
     .then(res => res.json())
     .then(data => {
       const results = data.clips.length;
-
-      if (results != 0) {
-        $('.defaultClip').hide();
+      
+      if (results > 0) { $('.defaultClip').hide(); } else { $('.defaultClip').show(); return; }
         
-        for (let i=0, len=results; i<len; i++) {
-          const clipSlug = data.clips[i].slug;  
-          const clipEmbedUrl = data.clips[i].embed_url;
-          const clipThumbnail = data.clips[i].thumbnails.small;
-          const clipViews = data.clips[i].views;
-          let clipTitle = data.clips[i].title;
-          clipTitle = (clipTitle).length > 20 ? clipTitle.substring(0, 16) + "..." : "" + clipTitle; 
-          const clipDate = new Date(Date.now()) - new Date(Date.parse(data.clips[i].created_at));
-          function timeConvertion(time) {
-            let seconds = (time / 1000).toFixed(0);
-            let minutes = (time / (1000*60)).toFixed(0);
-            let hours   = (time / (1000*60*60)).toFixed(0);
-            let days    = (time / (1000*60*60*24)).toFixed(0);
-            let years   = (time / (1000*60*60*24*360)).toFixed(0);
+      for (let i=0, len=results; i<len; i++) {
+        for (_ in clips) { if (clips[_].slug.includes(data.clips[i].slug)) { return; } }
 
-            if (seconds < 60) {
-              return seconds + 's';
-            } else if (minutes < 60) {
-              return minutes + 'm';
-            } else if (hours < 24) {
-              return hours + 'h';
-            } else if (days < 360) {
-              return days + 'd';
-            } else {
-              return years + 'y'; 
-            }
-          }
-          const clipAge = timeConvertion(clipDate);
-          const clipDuration = data.clips[i].duration;
-          let clipCreator = data.clips[i].curator.display_name;
-          clipCreator = (clipCreator.length) > 15 ? clipCreator.substring(0, 10) + "..." : "" + clipCreator;
+        clips.push({
+          'slug' : data.clips[i].slug,
+          'title' : data.clips[i].title,
+          'creator' : data.clips[i].curator.display_name,
+          'views' : data.clips[i].views,
+          'duration' : data.clips[i].duration,
+          'date' : {
+            'raw': data.clips[i].created_at,
+            'age' : timeConvertion(new Date(Date.now()) - new Date(Date.parse(data.clips[i].created_at)))
+          },
+          'thumbnail': data.clips[i].thumbnails.small,
+          'url': data.clips[i].embed_url
+        });
 
-          if (clipsDisplayed.includes(clipSlug)) { return }
-          else {
-            clipsDisplayed.push(clipSlug);
-            $('.clipsList').prepend(`
-              <li><a href="${clipEmbedUrl}" target="_blank"><img src="${clipThumbnail}"></img></a>
-                <div class="clipTitle">${clipTitle}</div>
-                <div class="clipCreatorName"><a style="color:inherit;" href="https://twitch.tv/${clipCreator}" target="_blank">${clipCreator}</a> • ${clipDuration}s • <i class="fas fa-eye" style="align-self:center"></i> ${clipViews} • ${clipAge}</div>
-              </li>
-            `);
-          }
-        }
-      } else {
-        $('.defaultClip').show();
+        if (sort === 'date') { clips.sort((a,b) => { return a.date.age - b.date.age }) }
+
+        $('.clipsList').append(`
+          <li>
+            <div class="clipThumbnail"><a href="${clips[i].url}" target="_blank"><img src="${clips[i].thumbnail}"></img></a></div>
+            <div class="clipTitle">${clips[i].title}</div>
+            <div class="clipInfo">
+              <span class="clipCreator"><a style="color:inherit;" href="https://twitch.tv/${clips[i].creator}" target="_blank">${clips[i].creator}</a></span>
+              <span class="clipDuration">${clips[i].duration}s</span>
+              <span class="clipViews"><i class="fas fa-eye" style="align-self:center"></i> ${clips[i].views} </span> 
+              <span class="clipAge">${clips[i].date.age}</span>
+            </div>
+          </li>
+        `);
       }
     });
     $('#clipsSort').css('display', 'block');
@@ -184,24 +202,25 @@ function getSettings() {
   $('.center').append(`<div id="settings" class="modal settings-modal"><div class="modal-content settings-content"><span class="close">&times;</span></div></div>`);
   $('.settings-content').append('<ul class="options"></ul>');
   $('.options').append(`
-  <div class="twitch-options">
-    <i class="fab fa-twitch options-family"></i>
-    <li><input type="checkbox" class="options-item-twitchVideo"> Video</input></li>
-    <li><input type="checkbox" class="options-item-twitchClips"> Clips</input></li>
-    <li><input type="checkbox" class="options-item-twitchEvents" checked> Events</input></li>
-    <li><input type="checkbox" class="options-item-twitchChat" checked> Chat</input></li>
-    <li><input type="checkbox" class="options-item-uptime" checked> Uptime</input></li>
-    <li><input type="checkbox" class="options-item-views" checked> Views</input></li>
-    <li><input type="checkbox" class="options-item-viewers" checked> Viewers</input></li>
-    <li><input type="checkbox" class="options-item-twitchFollowers" checked> Followers</input></li>
-    <!-- <li><input type="checkbox" class="options-item-twitchSubscribers" checked> Subscribers</input></li> -->
-  </div>
-  <div class="others-options">
-  <i class="fas fa-key options-family"></i>
-    <li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it here</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
-    <li>Discord Server ID : <input type="text" class="options-item-discordInfo"> <a href="https://cdn.discordapp.com/attachments/331192523856805890/531505436374073374/unknown.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
-  </div>
-  <div class="optionnals-options">
+    <div class="twitch-options">
+      <i class="fab fa-twitch options-family"></i>
+      <li><input type="checkbox" class="options-item-twitchVideo"> Video</input></li>
+      <li><input type="checkbox" class="options-item-twitchClips"> Clips</input></li>
+      <li><input type="checkbox" class="options-item-twitchEvents" checked> Events</input></li>
+      <li><input type="checkbox" class="options-item-twitchChat" checked> Chat</input></li>
+      <li><input type="checkbox" class="options-item-twitchUptime" checked> Uptime</input></li>
+      <li><input type="checkbox" class="options-item-twitchViews" checked> Views</input></li>
+      <li><input type="checkbox" class="options-item-twitchViewers" checked> Viewers</input></li>
+      <li><input type="checkbox" class="options-item-twitchFollowers" checked> Followers</input></li>
+      <!-- <li><input type="checkbox" class="options-item-twitchSubscribers" checked> Subscribers</input></li> -->
+      <!-- <li><input type="checkbox" class="options-item-twitchTranscoding" checked> Transcoding Alert</input></li> -->
+    </div>
+    <div class="others-options">
+    <i class="fas fa-key options-family"></i>
+      <li>StreamElements JWT Token : <input type="text" class="options-item-streamElementsInfo"> <a href="https://streamelements.com/dashboard/account/channels" target="_blank" style="color: blue; text-decoration: underline;">get it here</a> <a href="https://cdn.discordapp.com/attachments/331192523856805890/521024152937824257/SEKeyTutorial.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
+      <li>Discord Server ID : <input type="text" class="options-item-discordInfo"> <a href="https://cdn.discordapp.com/attachments/331192523856805890/531505436374073374/unknown.png" target="_blank"><i class="fas fa-question-circle" style="color:black;"></i></a></li>
+    </div>
+    <div class="optionnals-options">
     <i class="fas fa-cogs options-family"></i>
       <li>
         <input type="checkbox" class="options-item-darkMode"> <label for="classic">Dark mode</label>
@@ -210,7 +229,8 @@ function getSettings() {
         <input type="checkbox" class="options-item-vibrations" checked> Event vibrations</input>
       </li>
       <span>New features soon, more info/report bugs : <a href="https://twitter.com/hopollotv" target="_blank" style="color:red;">@HoPolloTV</a></span>
-    </div>`);
+    </div>
+  `);
 
   $('.settings-content').append('<div class="button-container"><a href="https://streamelements.com/hopollo/tip" target="_blank"><button class="button"><span class="fas fa-piggy-bank"></span> Donate</button></a></donate>');
 
@@ -255,41 +275,42 @@ function saveData() {
   let clips = $('.options-item-twitchClips').is(':checked');
   let events= $('.options-item-twitchEvents').is(':checked');
   let chat = $('.options-item-twitchChat').is(':checked');
-  let uptime = $('.options-item-uptime').is(':checked');
-  let views = $('.options-item-views').is(':checked');
-  let viewers = $('.options-item-viewers').is(':checked');
+  let uptime = $('.options-item-twitchUptime').is(':checked');
+  let views = $('.options-item-twitchViews').is(':checked');
+  let viewers = $('.options-item-twitchViewers').is(':checked');
   let followers = $('.options-item-twitchFollowers').is(':checked');
   let subscribers = $('.options-item-twitchSubscribers').is(':checked');
+  let transcoding = $('.options-item-twitchTranscoding').is(':checked');
   let darkMode = $('.options-item-darkMode').is(':checked');
-  let vibrations = $('.options-items-vibrations').is(':checked');
+  let vibrations = $('.options-item-vibrations').is(':checked');
   let clipsSort = $('#clipsSort').val();
 
+  /* /!\ Not working anymore if not in one line /!\ */
   const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};Transcoding=${transcoding};ClipsSort=${clipsSort};DarkMode=${darkMode};`;
-  //TODO ADD cookies to save user choises (windows positions);
+
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
     document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
+  savePositions();
 }
 
 function savePositions() {
-  /*
-  if (document.cookie.split("Chat=")[1].split(';')[0] === 'true') {
-    const chatPos = $('.chat').offset();
+  if (document.cookie.split("Chat=")[1].split(';')[0] == 'true') {
+    let chatPos = $('.chat').index();
     document.cookie = `ChatPos=${chatPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
-  if (document.cookie.split("Events=")[1].split(';')[0] === 'true') {
-    const eventsPos = $('.events').offset();
+  if (document.cookie.split("Events=")[1].split(';')[0] == 'true') {
+    let eventsPos = $('.events').index();
     document.cookie = `EventsPos=${eventsPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
-  if (document.cookie.split("Video=")[1].split(';')[0] === 'true') { 
-    const videoPos =  $('.video').offset();
+  if (document.cookie.split("Video=")[1].split(';')[0] == 'true') {
+    let videoPos =  $('.video').index();
     document.cookie = `VideoPos=${videoPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
-  if (document.cookie.split("Clips=")[1].split(';')[0] === 'true') {
-    const clipsPos = $('.clips').offset();
+  if (document.cookie.split("Clips=")[1].split(';')[0] == 'true') {
+    let clipsPos = $('.clips').index();
     document.cookie = `ClipsPos=${clipsPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
-  */
 }
 
 function readData() {
@@ -314,13 +335,15 @@ function readData() {
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
   $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
   $('.options-item-twitchChat').prop('checked', cookieData.includes("Chat=true"));
-  $('.options-item-uptime').prop('checked', cookieData.includes("Uptime=true"));
-  $('.options-item-views').prop('checked', cookieData.includes("Views=true"));
-  $('.options-item-viewers').prop('checked', cookieData.includes("Viewers=true"));
+  $('.options-item-twitchUptime').prop('checked', cookieData.includes("Uptime=true"));
+  $('.options-item-twitchViews').prop('checked', cookieData.includes("Views=true"));
+  $('.options-item-twitchViewers').prop('checked', cookieData.includes("Viewers=true"));
   $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
   $('.options-item-twitchSubscribers').prop('checked', cookieData.includes("Subscribers=true"));
+  $('.options-item-twitchTranscoding').prop('checked', cookieData.includes("Transcoding=true"));
   $('.options-item-darkMode').prop('checked', cookieData.includes("DarkMode=true"));
   $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"));
+  
 
   if (cookieData.includes("Discord="))          { createDiscord();     }
   if (cookieData.includes("Video=true"))        { createVideo();       }
@@ -332,6 +355,7 @@ function readData() {
   if (cookieData.includes("Viewers=true"))      { createViewers();     }
   if (cookieData.includes("Followers=true"))    { createFollowers();   }
   if (cookieData.includes("Subscribers=true"))  { createSubscribers(); }
+  if (cookieData.includes("Transcoding=true"))  { createTranscoding(); }
   if (cookieData.includes("DarkMode=true"))     { applyDarkMode(true); }
   if (cookieData.includes("Vibrations=true"))   { createVibrations();  }
 }
@@ -385,7 +409,6 @@ function unlockItems() {
   //TODO Tweak drag feature
   $('.module').on('touchstart', (e) => { //touchmove
     let xPos = e; //e.changedTouches[0].clientX;
-    console.log(xPos);
     let window = (e.changedTouches[0].target.className).split(' ')[1] || e.changedTouches[0].target.offsetParent.className.split(' ')[1];
     let windowWidth = e.changedTouches[0].target.clientWidth;
     let offset = $('.center').width() - windowWidth;
@@ -406,21 +429,21 @@ function getChat() {
 }
 
 function getViewers() {
-  modules.viewers = true;
+  modules.twitchViewers = true;
   $.get(`https://decapi.me/twitch/viewercount/${displayName}`, (viewers) => {
-      if (viewers == `${displayName} is offline`) {
-        const img = '<span class="fas fa-video-slash"></span>'
-        $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
-      } else {
-        const img = '<span class="fas fa-child"></span>'
-        $('.viewers').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
-        getUptime();
-      }
+    if (viewers == `${displayName} is offline`) {
+      const img = '<span class="fas fa-video-slash"></span>'
+      $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
+    } else {
+      const img = '<span class="fas fa-child"></span>'
+      $('.viewers').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
+      getUptime();
+    }
   });
 }
 
 function getFollowers() {
-  modules.followers = true;
+  modules.twitchFollowers = true;
   const token = {
     mode: 'cors',
     headers: { 'Authorization' : userAuth }
@@ -439,7 +462,7 @@ function getFollowers() {
 
 function getSubscribers() {
   //TODO FINISH TO RETRIEVE SUBSCRIBERS + HIDE SUBSCRIBERS OPTIONS IF NOT AFFILIATE OR PARTENER
-  modules.subscribers = true;
+  modules.twitchSubscribers = true;
   const token = {
     mode: 'cors',
     headers: {
@@ -452,13 +475,19 @@ function getSubscribers() {
   fetch(`https://api.twitch.tv/kraken/channels/${userID}/subscriptions`, token)
     .then(res => res.json())
     .then(data => {
-      console.log(data);
+      console.log('Subs :' + data);
       if (modules.twitchSubscribers) {
         const totalSubscribers = data._total;
         $('.subscribers').replaceWith(`<div class="subscribers"><i class="fas fa-comment-dollar"> ${totalSubscribers}</i></div>`);
       }
     })
     .catch(err => console.error(err))
+}
+
+function getTranscoding() {
+  let transcoding = "Off";
+  //ISSUE : Fix duplicating
+  //$('.alerts').replaceWith(`<div class="alerts">Transcoding ${transcoding}</div>`);
 }
 
 var eventList = [];
@@ -492,12 +521,14 @@ function addStreamEvent(avatar, name, age, type, id, message) {
 }
 
 function getViews() {
-  modules.views = true;
+  modules.twitchViews = true;
   fetch(`https://decapi.me/twitch/total_views/${displayName}`)
     .then(res => res.json())
     .then(views => {
-      const img = '<span class="fas fa-eye"></span>';
-      $('.views').replaceWith(`<div class="views">${img} ${views}</div>`);
+      if (modules.twitchViews) {
+        const img = '<span class="fas fa-eye"></span>';
+        $('.views').replaceWith(`<div class="views">${img} ${views}</div>`);
+      }
     })
     .catch(err => console.error(err))
 }
@@ -530,8 +561,14 @@ function getTitleAndGame() {
 }
 
 function getGameImage() {
-  const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif"
+  const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif";
+  const gamePrefixes = {
+    'r6': 'HOPOLLO' //'Counter-Strike: Global Offensive',
+  }
   const currentGame = $('.gameLabel').val();
+  if (gamePrefixes.filter(e => e.name === currentGame)) {
+    console.log('OK');
+  }
   $('.game-label-state').replaceWith(`<i class="game-label-state"><img class="game-image-loading"src="${loadingGif}" height="16px" width="16px"></i>`);
   const settings = {
     headers : {
@@ -655,24 +692,11 @@ function getEvents() {
         $('.defaultEvent').remove();
         for (let i=0, len=results; i < len; i++) {
           const eventAvatar = data[i].data.avatar;
+          //TODO : Addd symbol for partners + add symbol if on stream
+          const eventAuthorType = "";
+          let eventAuthorOnStream = "";
           const eventAuthor = data[i].data.username;
           const eventDate = new Date(Date.now()) - new Date(Date.parse(data[i].createdAt));
-          function timeConvertion(time) {
-            let seconds = (time / 1000).toFixed(0);
-            let minutes = (time / (1000*60)).toFixed(0);
-            let hours = (time / (1000*60*60)).toFixed(0);
-            let days = (time / (1000*60*60*24)).toFixed(0);
-
-            if (seconds < 60) {
-              return seconds + 's';
-            } else if (minutes < 60) {
-              return minutes + 'm';
-            } else if (hours < 24) {
-              return hours + 'h';
-            } else {
-              return days + 'd';
-            }
-          }
           const eventAge = timeConvertion(eventDate);
           let eventType = data[i].type;
           switch (eventType) {
@@ -731,7 +755,7 @@ function createVideo() {
   getVideo();
 
   try {
-    $('.video').css('left', `${document.cookie.split('VideoPos=')[1].split(';')[0]}px`);
+    $('.video').css('order', parseInt(document.cookie.split('VideoPos=')[1].split(';')[0]));
   } catch (err) {
     console.error(err);
   }
@@ -742,9 +766,14 @@ function createClips() {
     <div class="module clips">
       <div class="handle"></div>
       <select id="clipsSort">
+        <option value="day">Day</option>
         <option value="week">Week</option>
         <option value="month">Month</option>
         <option value="all">All</option>
+      </select>
+      <select id="clipsSortType">
+        <option value="date">Date</option>
+        <option value="views">Views</option>
       </select>
       <div class="clipsList">
         <div class="defaultClip" style="color:black; display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i>No clips yet</div>
@@ -755,7 +784,7 @@ function createClips() {
   getClips();
 
   try {
-    $('.clips').css('left', `${document.cookie.split('ClipsPos=')[1].split(';')[0]}px`);
+    $('.clips').css('order', parseInt(document.cookie.split('ClipsPos=')[1].split(';')[0]));
   } catch (err) {
     console.error(err);
   }
@@ -766,7 +795,8 @@ function createEvents() {
     <div class="module events">
       <div class="handle"></div>
       <div class="eventsList"></div>
-    </div>`);
+    </div>
+  `);
   
   if ($('.options-item-streamElementsInfo').val().length > 30) {
     $('.events').append(`<div class="defaultEvent" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;">No events yet or invalid StreamElements JWT Token.</div>`);
@@ -777,7 +807,7 @@ function createEvents() {
   getEvents();
 
   try {
-    $('.events').css('left', `${document.cookie.split('EventsPos=')[1].split(';')[0]}px`);
+    $('.events').css('order', parseInt(document.cookie.split('EventsPos=')[1].split(';')[0]));
   } catch (err) {
     console.error(err);
   }
@@ -788,7 +818,7 @@ function createChat() {
   getChat();
 
   try {
-    $('.chat').css('left', `${document.cookie.split('ChatPos=')[1].split(';')[0]}px`);
+    $('.chat').css('order', parseInt(document.cookie.split('ChatPos=')[1].split(';')[0]));
   } catch (err) {
     console.error(err);
   }
@@ -814,8 +844,13 @@ function createFollowers() {
 }
 function createSubscribers() {
   modules.twitchSubscribers = true;
-  $('.bottom').append(`<div class="subscribers"></div>`)
+  $('.bottom').append(`<div class="subscribers"></div>`);
   getSubscribers();
+}
+function createTranscoding() {
+  modules.twitchTranscoding = true;
+  $('.top').append(`<div class="alerts"></div>`);
+  getTranscoding();
 }
 function createVibrations() {
   //TODO finish to implement vibration
@@ -839,24 +874,28 @@ function removeChat() {
   $('.chat').remove();
 }
 function removeUptime() {
-  modules.uptime = false;
+  modules.twitchUptime = false;
   $('.uptime').remove();
 }
 function removeViews() {
-  modules.views = false;
+  modules.twitchViews = false;
   $('.views').remove();
 }
 function removeViewers() {
-  modules.viewers = false;
+  modules.twitchViewers = false;
   $('.viewers').remove();
 }
 function removeFollowers() {
-  modules.followers = false;
+  modules.twitchFollowers = false;
   $('.followers').remove();
 }
 function removeSubscribers() {
-  modules.subscribers = false;
+  modules.twitchSubscribers = false;
   $('.subscribers').remove();
+}
+function removeTranscoding() {
+  modules.twitchTranscoding = false;
+  $('.alerts').remove();
 }
 
 function applyDarkMode(bool) {
@@ -867,6 +906,7 @@ function applyDarkMode(bool) {
     $('#chat_embed').attr('src', `https://www.twitch.tv/embed/${displayName}/chat?darkpopout`);
     $('.module').css({'background':'black', 'color':'white'});
   } else {
+    $('#chat_embed').attr('src', `https://www.twitch.tv/embed/${displayName}/chat`);
     $('.module').css({'background':'white', 'color':'black'});
   }
 }
@@ -922,17 +962,20 @@ function logged() {
         case 'options-item-twitchChat':
           createChat();
           break;
-        case 'options-item-uptime':
+        case 'options-item-twitchUptime':
           createUptime();
           break;
-        case 'options-item-views':
+        case 'options-item-twitchViews':
           createViews();
           break;
-        case 'options-item-viewers':
+        case 'options-item-twitchViewers':
           createViewers();
           break;
         case 'options-item-twitchFollowers':
           createFollowers();
+          break;
+        case 'options-item-twitchTranscoding':
+          createTranscoding();
           break;
         case 'options-item-twitchSubscribers':
           createSubscribers();
@@ -956,17 +999,20 @@ function logged() {
         case 'options-item-twitchChat':
           removeChat();
           break;
-        case 'options-item-uptime':
+        case 'options-item-twitchUptime':
           removeUptime();
           break;
-        case 'options-item-views':
+        case 'options-item-twitchViews':
           removeViews();
           break;
-        case 'options-item-viewers':
+        case 'options-item-twitchViewers':
           removeViewers();
           break;
         case 'options-item-twitchFollowers':
           removeFollowers();
+          break;
+        case 'options-item-twitchTranscoding':
+          removeTranscoding();
           break;
         case 'options-item-twitchSubscribers':
           removeSubscribers();
@@ -981,8 +1027,9 @@ function logged() {
   $('select').change(function() {
     switch(this['id']) {
       case 'clipsSort':
-        $('.clipsList').find('li').remove();
-        clipsDisplayed = [];
+      case 'clipsSortType':
+        $('.clipsList').find('*').remove();
+        clips.length = 0;
         saveData();
         getClips();
         break;
