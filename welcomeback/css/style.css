@@ -300,6 +300,7 @@ body {
   width: calc(100vw/4);
   -webkit-transform: translateY(50%, -50%);
           transform: translateY(50%, -50%);
+  border: .5px solid #b8b8b8;
 }
 
 .center .handle {
@@ -320,8 +321,6 @@ body {
 }
 
 .center .clips {
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
   overflow: auto;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -329,30 +328,21 @@ body {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  background: #faf9fa;
-  border: 1px solid #b8b8b8;
+  text-align: center;
 }
 
-.center .clips select {
-  width: 70px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  left: 10px;
+.center .clips .clipsSortButtons {
   position: absolute;
+  z-index: 99;
+  top: 5px;
+  left: 5px;
+  height: 45px;
+  width: 60px;
 }
 
-.center .clips #clipsSort {
-  display: none;
-  top: 10px;
-}
-
-.center .clips #clipsSortType {
-  top: 35px;
-}
-
-.center .clips .clipThumbnail a img {
+.center .clips .clipsSortButtons select {
   width: 100%;
+  height: 50%;
 }
 
 .center .clips .clipInfo > *:not(:last-child):after {
@@ -360,7 +350,6 @@ body {
 }
 
 .center .clips .clipTitle, .center .clips .clipCreatorName {
-  color: black;
   text-overflow: ellipsis;
 }
 
