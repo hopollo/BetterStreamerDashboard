@@ -351,14 +351,15 @@ body {
   top: 35px;
 }
 
+.center .clips .clipThumbnail a img {
+  width: 100%;
+}
+
 .center .clips .clipInfo > *:not(:last-child):after {
   content: ' • ';
 }
 
 .center .clips .clipTitle, .center .clips .clipCreatorName {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
   color: black;
   text-overflow: ellipsis;
 }
