@@ -225,6 +225,7 @@ body {
     height: 100%;
     width: calc(100vw/4);
     transform: translateY(50%, -50%);
+    border: .5px solid #b8b8b8;
   }
   
   .handle {
@@ -244,30 +245,24 @@ body {
   }
   
   .clips {
-    flex-wrap: wrap;
     overflow: auto;
     display: flex;
     justify-content: center;
-    background: #faf9fa;
-    border: 1px solid #b8b8b8;
+    text-align: center;
 
-    select {
-      width: 70px; 
-      display: flex;
-      left: 10px;
+    .clipsSortButtons {
       position: absolute;
-    }
-    #clipsSort {
-      display: none;
-      top: 10px;
-    }
-    #clipsSortType {
-      top: 35px;
+      z-index: 99;
+      top: 5px;
+      left: 5px;
+      height: 45px;
+      width: 60px;
+      //todo : find a way to have a sticky & absolute sorts buttons that doesn't change thumbnails positions
+      select { width: 100%; height: 50%; }
     }
 
-    .clipThumbnail a img { width: 100%; }
     .clipInfo > *:not(:last-child):after { content: ' • '; }
-    .clipTitle, .clipCreatorName { color: black; text-overflow: ellipsis; }
+    .clipTitle, .clipCreatorName { text-overflow: ellipsis; }
     .clipCreator:hover { color: gray; }
   }
 
