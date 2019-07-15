@@ -132,9 +132,6 @@ function getVideo() {
 
 var clips = [];
 function getClips() {
-  /* TODO (hopollo) :
-  [] Add warning message to inform user hasnt selected period
-  */
   let period;
   let sort;
 
@@ -485,7 +482,7 @@ function getFollowers() {
 }
 
 function getSubscribers() {
-  //TODO FINISH TO RETRIEVE SUBSCRIBERS + HIDE SUBSCRIBERS OPTIONS IF NOT AFFILIATE OR PARTENER
+  //TODO FINISH TO RETRIEVE SUBSCRIBERS + HIDE SUBSCRIBERS OPTIONS IF NOT AFFILIATE OR PARTNER
   modules.twitchSubscribers = true;
   const token = {
     mode: 'cors',
@@ -587,9 +584,7 @@ function getTitleAndGame() {
 function getGameImage() {
   const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif";
   const currentGame = $('.gameLabel').val();
-  if (gamePrefixes.filter(e => e.name === currentGame)) {
-    console.log('OK');
-  }
+  
   $('.game-label-state').replaceWith(`<i class="game-label-state"><img class="game-image-loading"src="${loadingGif}" height="16px" width="16px"></i>`);
   const settings = {
     headers : {
