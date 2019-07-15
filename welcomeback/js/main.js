@@ -32,6 +32,7 @@ function authenticate() {
   userAuth = `Bearer ${token}`;
   userOAuth = `OAuth ${token}`;
   userID = decodedJWT.sub;
+  ytAPIKey = "AIzaSyC0zC4CNqNDDuUunca8eDAQZHyQ2oy5VEk";
   displayName = decodedJWT.preferred_username;
 
   logged();
@@ -96,14 +97,22 @@ function updateModules() {
 function getUserAvatar() {
   const token = {
     mode: 'cors',
-    headers: { 'Authorization' : userAuth}
+    headers: { 'Authorization' : userAuth }
   };
  
   fetch(`https://api.twitch.tv/helix/users?login=${displayName}`, token)
     .then(res => res.json())
     .then(data => {
       $('.top').append(`<a href="https://www.twitch.tv/${displayName}" target="_blank"><img class="userLogo" src="${data.data[0].profile_image_url}" heigth="100%" width="100%"/></a>`);
-    });
+    })
+    .catch(err => console.error(err));
+}
+
+function getSongPlayer() {
+  const songURL = $('.songLinkInput').val();
+  const songVolume = $('.songVolumeInput').val();
+  //$('.songPlayer .playlist').attr('src', `https://www.youtube.com/embed?listType=playlist&list=${songURL}&autoplay=1&iv_load_policy=3`);
+  $('.songPlayer .playlist').attr('src', `https://obsyoutubeplayer.netlify.com/?${songURL}&volume=${songVolume}`);
 }
 
 function getVideo() {
@@ -123,11 +132,8 @@ function getVideo() {
 
 var clips = [];
 function getClips() {
-  /* TODO (hopollo) : 
-  [] Add on CSS the ... if title and/or all clips info are longer than the clip thumbnail width
-  [] Fix duplicating clips
-  [] Fix date sort issue
-  [] Add warning message to show if noclips (period = day)
+  /* TODO (hopollo) :
+  [] Add warning message to inform user hasnt selected period
   */
   let period;
   let sort;
@@ -140,7 +146,9 @@ function getClips() {
   if (document.cookie.includes('ClipsSortType=')) {
     sort = document.cookie.split('ClipsSortType=')[1].split(';')[0];
     $('#clipsSortType').val(sort);
-  } else { sort = $('#clipsSortType').val(); }
+  } else {
+      sort = $('#clipsSortType').val(); 
+  }
 
   const url = `https://api.twitch.tv/kraken/clips/top?channel=${displayName}&period=${period}&limit=100`;
   
@@ -157,7 +165,7 @@ function getClips() {
     .then(data => {
       const results = data.clips.length;
       
-      if (results > 0) { $('.defaultClip').hide(); } else { $('.defaultClip').show(); return; }
+      (results > 0) ? $('.defaultClip').hide() : $('.defaultClip').show();
         
       for (let i=0, len=results; i<len; i++) {
         for (_ in clips) { if (clips[_].slug.includes(data.clips[i].slug)) { return; } }
@@ -225,9 +233,8 @@ function getSettings() {
     </div>
     <div class="optionnals-options">
     <i class="fas fa-cogs options-family"></i>
-      <li>
-        <input type="checkbox" class="options-item-darkMode"> <label for="classic">Dark mode</label>
-      </li>
+      <li><input type="checkbox" class="options-item-darkMode"> <label for="classic">Dark mode</label></input></li>
+      <!-- <li><input type="checkbox" class="options-item-songPlayer" checked> Song Player</input></li> -->
       <li style="display: none;">
         <input type="checkbox" class="options-item-vibrations" checked> Event vibrations</input>
       </li>
@@ -274,6 +281,14 @@ function saveData() {
   if ($('.options-item-discordInfo').val() != null || $('.options-item-discordInfo').val() > 15) {
     var discord = $('.options-item-discordInfo').val();
   }
+  if ($('.songLinkInput').val() != null || $('.songLinkInput').val() > 5) {
+    var songLink = $('.songLinkInput').val();
+  }
+  if ($('.songVolumeInput').val() != null) { 
+    var songVolume = $('.songVolumeInput').val();
+  }
+  /* TODO Add save of song player URL */
+  let songPlayer = $('.options-item-songPlayer').is(':checked');
   let video = $('.options-item-twitchVideo').is(':checked');
   let clips = $('.options-item-twitchClips').is(':checked');
   let events= $('.options-item-twitchEvents').is(':checked');
@@ -289,7 +304,7 @@ function saveData() {
   let clipsSort = $('#clipsSort').val();
 
   /* /!\ Not working anymore if not in one line /!\ */
-  const userData = `SEToken=${jwt};Discord=${discord};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};Transcoding=${transcoding};ClipsSort=${clipsSort};DarkMode=${darkMode};`;
+  const userData = `SEToken=${jwt};Discord=${discord};SongPlayer=${songPlayer};SongPlayerLink=${songLink};SongPlayerVolume=${songVolume};Video=${video};Clips=${clips};Events=${events};Chat=${chat};Uptime=${uptime};Views=${views};Viewers=${viewers};Followers=${followers};Subscribers=${subscribers};Vibrations=${vibrations};Transcoding=${transcoding};ClipsSort=${clipsSort};DarkMode=${darkMode};`;
 
   for (let i=0, len=userData.split(';').length; i < len; i ++) {
     document.cookie = `${userData.split(';')[i]}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
@@ -309,6 +324,10 @@ function savePositions() {
   if (document.cookie.split("Video=")[1].split(';')[0] == 'true') {
     let videoPos =  $('.video').index();
     document.cookie = `VideoPos=${videoPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
+  }
+  if (document.cookie.split("SongPlayer=")[1].split(';')[0] == 'true') {
+    let songPlayerPos = $('.songPlayer').index();
+    document.cookie = `SongPlayerPos=${songPlayerPos}; expires=Thu, 1 Dec 2019 12:00:00 UTC`;
   }
   if (document.cookie.split("Clips=")[1].split(';')[0] == 'true') {
     let clipsPos = $('.clips').index();
@@ -333,7 +352,7 @@ function readData() {
 
   if (cookieData.includes('SEToken')) { $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]); }
   if (cookieData.includes('Discord')) { $('.options-item-discordInfo').val(cookieData.split('Discord=')[1].split(';')[0]); }
-  $('.options-item-streamElementsInfo').val(cookieData.split('SEToken=')[1].split(';')[0]);
+  
   $('.options-item-twitchVideo').prop('checked', cookieData.includes("Video=true"));
   $('.options-item-twitchClips').prop('checked', cookieData.includes("Clips=true"));
   $('.options-item-twitchEvents').prop('checked', cookieData.includes("Events=true"));
@@ -344,12 +363,13 @@ function readData() {
   $('.options-item-twitchFollowers').prop('checked', cookieData.includes("Followers=true"));
   $('.options-item-twitchSubscribers').prop('checked', cookieData.includes("Subscribers=true"));
   $('.options-item-twitchTranscoding').prop('checked', cookieData.includes("Transcoding=true"));
+  $('.options-item-songPlayer').prop('checked', cookieData.includes("SongPlayer=true"));
   $('.options-item-darkMode').prop('checked', cookieData.includes("DarkMode=true"));
   $('.options-item-vibrations').prop('checked', cookieData.includes("Vibrations=true"));
-  
 
   if (cookieData.includes("Discord="))          { createDiscord();     }
   if (cookieData.includes("Video=true"))        { createVideo();       }
+  if (cookieData.includes("SongPlayer=true"))   { createSongPlayer();  }
   if (cookieData.includes("Clips=true"))        { createClips();       }
   if (cookieData.includes("Events=true"))       { createEvents();      }
   if (cookieData.includes("Chat=true"))         { createChat();        }
@@ -435,11 +455,12 @@ function getViewers() {
   modules.twitchViewers = true;
   $.get(`https://decapi.me/twitch/viewercount/${displayName}`, (viewers) => {
     if (viewers == `${displayName} is offline`) {
-      const img = '<span class="fas fa-video-slash"></span>'
-      $('.viewers').replaceWith(`<div class="viewers">${img}</div>`);
+      const img = '<span class="fas fa-video-slash"></span>';
+      const link = `window.open('https://www.twitch.tv/${displayName}/dashboard');`;
+      $('.viewers').replaceWith(`<div class="viewers" style="cursor:pointer" onclick=${link}>${img}</div>`);
     } else {
-      const img = '<span class="fas fa-child"></span>'
-      $('.viewers').replaceWith(`<div class="viewers">${img} ${viewers}</div>`);
+      const img = '<span class="fas fa-child"></span>';
+      $('.viewers').replaceWith(`<div class="viewers" style="cursor:pointer" onclick=${link}>${img} ${viewers}</div>`);
       getUptime();
     }
   });
@@ -455,12 +476,12 @@ function getFollowers() {
   fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, token)
     .then(res => res.json())
     .then(data => {
-      if (modules.twitchFollowers) { 
+      if (modules.twitchFollowers) {
         const totalFollowers = data.total;
-        $('.followers').replaceWith(`<div class="followers"><i class="fas fa-heart"> ${totalFollowers}</i></div>`);
+        $('.followers').replaceWith(`<div class="followers" style="cursor: pointer" onclick="window.open('https://www.twitch.tv/${displayName}/followers');"><i class="fas fa-heart"> ${totalFollowers}</i></div>`);
       }
     })
-    .catch(err => console.error(err))
+    .catch(err => console.error(err));
 }
 
 function getSubscribers() {
@@ -530,7 +551,7 @@ function getViews() {
     .then(views => {
       if (modules.twitchViews) {
         const img = '<span class="fas fa-eye"></span>';
-        $('.views').replaceWith(`<div class="views">${img} ${views}</div>`);
+        $('.views').replaceWith(`<div class="views" style="cursor:pointer" onclick="window.open('https://www.twitch.tv/${displayName}/dashboard')">${img} ${views}</div>`);
       }
     })
     .catch(err => console.error(err))
@@ -565,9 +586,6 @@ function getTitleAndGame() {
 
 function getGameImage() {
   const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif";
-  const gamePrefixes = {
-    'r6': 'HOPOLLO' //'Counter-Strike: Global Offensive',
-  }
   const currentGame = $('.gameLabel').val();
   if (gamePrefixes.filter(e => e.name === currentGame)) {
     console.log('OK');
@@ -763,14 +781,48 @@ function createVideo() {
     console.error(err);
   }
 }
+
+function createSongPlayer() {
+  const cookieData = document.cookie;
+  /* TODO finish implementing player stuff */
+  // REMOVE THIS TO WORK WITH
+  $('.center').append(`
+    <div class="module songPlayer" style="display: none;">
+      <div class="handle"></div>
+      <div class="controls">
+        <button class="playButton"><i class="fas fa-play"></i></button>
+        <button class="prevButton"><i class="fas fa-step-backward"></i></button>
+        <button class="nextButton"><i class="fas fa-step-forward"></i></button>
+        <input class="songLinkInput" type="url" placeholder='Youtube Link...'></input>
+        <input class="songVolumeInput" type="number"></input>
+        <button class="muteButton"><i class="fas fa-volume-off"></i></button>
+      </div>
+      <iframe class="playlist" id="ytplayer" type="text/html" src="" frameborder="0"/>
+    </div>
+  `);
+
+  if (cookieData.includes('SongPlayerLink')) { $('.songLinkInput').val(cookieData.split('SongPlayerLink=')[1].split(';')[0]); }
+  if (cookieData.includes('SongPlayerVolume')) { $('.songVolumeInput').val(cookieData.split('SongPlayerVolume=')[1].split(';')[0]); }
+
+  getSongPlayer();
+
+  /* TODO Fix position Up/Down
+  try {
+    $('.songPlayer').css('order', parseInt(document.cookie.split('SongPlayerPos=')[1].split(';')[0]));
+  } catch (err) {
+    console.error(err);
+  }*/
+}
 function createClips() {
+  // TODO (HoPollo) : Fix the "issue" when buttons sort choice are scrolling with clips, should stay fixed
+
   modules.twitchClips = true;
   $('.center').append(`
     <div class="module clips">
       <div class="handle"></div>
       <div class="clipsSortButtons">
         <select id="clipsSort">
-          <option value="day">Day</option>
+          <option value="day" selected>Day</option>
           <option value="week">Week</option>
           <option value="month">Month</option>
           <option value="all">All</option>
@@ -781,8 +833,8 @@ function createClips() {
         </select>
       </div>
       <div class="clipsList">
-        <div class="defaultClip" style="color:black; display:flex; justify-content:center; align-items: center;"<i class="fas fa-film"></i>No clips yet</div>
       </div>
+      <div class="defaultClip" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align: center;"<i class="fas fa-film"></i>No clips yet for this period</div>
     </div>
   `);
 
@@ -861,6 +913,9 @@ function createVibrations() {
   //TODO finish to implement vibration
 }
 
+function removeSongPlayer() {
+  $('.songPlayer').remove();
+}
 function removeVideo() {
   modules.twitchVideo = false;
   $('.video').remove();
@@ -955,6 +1010,9 @@ function logged() {
   $('input:checkbox').change(function() {
     if ($(this).is(':checked')) {
       switch(this['className']) {
+        case 'options-item-songPlayer':
+          createSongPlayer();
+          break;
         case 'options-item-twitchVideo':
           createVideo();
           break;
@@ -992,6 +1050,9 @@ function logged() {
     }
     else {
       switch(this['className']) {
+        case 'options-item-songPlayer':
+          removeSongPlayer();
+          break;
         case 'options-item-twitchVideo':
           removeVideo();
           break;
@@ -1041,10 +1102,14 @@ function logged() {
     }
   });
 
-  $('input:text').change(function() {
+  $('input').change(function() {
     switch(this.className) {
       case 'options-item-discordInfo':
         createDiscord();
+        break;
+      case 'songLinkInput':
+      case 'songVolumeInput':
+        getSongPlayer();
         break;
     }
   })
