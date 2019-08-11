@@ -252,10 +252,10 @@ function getSettings() {
           <li><label>Game</label></li>
           <li><input class="gameLabel" type="text"> <i class="game-label-state"></i></li>
         </ul>
-        <div class="game-image-container>
+        <div class="game-image-container">
           <a class="game-image-link" href=""><img class="game-image-thumbnail" src=""></a>
         </div>
-        
+        <div class="game-info-container"></div>
         <div class="button-container"><input class="submitInfo button" type="submit" value="Submit"></div>
       </form>
     </div>
@@ -377,17 +377,23 @@ function readData() {
   if (cookieData.includes("Subscribers=true"))  { createSubscribers(); }
   if (cookieData.includes("Transcoding=true"))  { createTranscoding(); }
   if (cookieData.includes("DarkMode=true"))     { applyDarkMode(true); }
-  if (cookieData.includes("Vibrations=true"))   { createVibrations();  }
+  if (cookieData.includes("Vibrations=true"))   { createVibrations(0);  }
 }
 
 function showInfo() {
   $('.infos-modal').css('display', 'block');
   $('.titleLabel').attr('placeholder', 'Your stream title...');
   $('.gameLabel').attr('placeholder', 'Your stream game...');
+  
   let typingGame;
-  $('.gameLabel').keyup(() => { clearTimeout(typingGame); typingGame = setTimeout(() => { getGameImage(); }, 1500);});
+  $('.gameLabel').keyup(() => { 
+    clearTimeout(typingGame); 
+    typingGame = setTimeout(() => { 
+      getGameInfos(); 
+    }, 1500);
+  });
 
-  $('.fa-undo').click(() => { $('.titleLabel').val(''); })
+  $('.fa-undo').click(() => { $('.titleLabel').val(''); });
 
   $('.submitInfo').click(() => {
     const titleToUpdate = $('.titleLabel').val();
@@ -513,10 +519,8 @@ function getTranscoding() {
 
 var eventList = [];
 function addStreamEvent(avatar, name, age, type, id, message) {
-  if (eventList.includes(id)) {
-    return;
-  }
-
+  if (eventList.includes(id)) return;
+  
   eventList.push(id);
 
   if (message == null || message.length < 1) {
@@ -525,7 +529,7 @@ function addStreamEvent(avatar, name, age, type, id, message) {
     message = `<i class="fas fa-quote-left" style="color:grey;"></i> ${message} <i class="fas fa-quote-right" style="color:grey;"></i>`;
   }
 
-  navigator.vibrate(200);
+  createVibrations(200);
   
   const userTwitchChannelLink = `https://www.twitch.tv/${name}`;
   
@@ -543,15 +547,12 @@ function addStreamEvent(avatar, name, age, type, id, message) {
 
 function getViews() {
   modules.twitchViews = true;
-  fetch(`https://decapi.me/twitch/total_views/${displayName}`)
-    .then(res => res.json())
-    .then(views => {
-      if (modules.twitchViews) {
-        const img = '<span class="fas fa-eye"></span>';
-        $('.views').replaceWith(`<div class="views" style="cursor:pointer" onclick="window.open('https://www.twitch.tv/${displayName}/dashboard')">${img} ${views}</div>`);
-      }
-    })
-    .catch(err => console.error(err))
+  $.get(`https://decapi.me/twitch/total_views/${displayName}`, (views)=> {
+    if (!modules.twitchViews) return;
+
+    const img = '<span class="fas fa-eye"></span>';
+    $('.views').replaceWith(`<div class="views" style="cursor:pointer" onclick="window.open('https://www.twitch.tv/${displayName}/dashboard')">${img} ${views}</div>`);
+  })
 }
 
 function getTitleAndGame() {
@@ -581,7 +582,7 @@ function getTitleAndGame() {
     })
 }
 
-function getGameImage() {
+async function getGameInfos() {
   const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif";
   const currentGame = $('.gameLabel').val();
   
@@ -592,27 +593,39 @@ function getGameImage() {
     }
   }
 
-  if (currentGame != null) {
-    $('.game-image-thumbnail').attr('src', `${loadingGif}`);
+  if (currentGame == null) return;
 
-    fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
-      .then(res => res.json())
-      .then(data => {
-        let gameImage = data.data[0].box_art_url;
-        const gameRealName = data.data[0].name;
-        gameImage = gameImage.replace('-{width}x{height}', '');
-        $('.game-image-link').attr('href', `https://www.twitch.tv/directory/game/${currentGame}`);
-        $('.game-image-thumbnail').attr('src', gameImage);
-        $('.gameLabel').val(gameRealName);
-        $('.game-label-state').replaceWith('<i class="fas fa-check game-label-state" style="color:green;"></i>');
-        $('.submitInfo').prop('disabled', false);
-      })
-      .catch(err => {
-        $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
-        $('.game-image-thumbnail').attr('src', "https://risibank.fr/cache/stickers/d1097/109776-full.png");
-        $('.submitInfo').prop('disabled', true);
-      })
-  }
+  $('.game-image-thumbnail').attr('src', `${loadingGif}`);
+
+  fetch(`https://api.twitch.tv/helix/games?name=${currentGame}`, settings)
+    .then(res => res.json())
+    .then(data => {
+      const gameID = data.data[0].id;
+      const gameImage = data.data[0].box_art_url.replace('-{width}x{height}', '');
+      const gameRealName = data.data[0].name;
+
+      $('.gameLabel').val(gameRealName);
+      $('.game-image-link').attr('href', `https://www.twitch.tv/directory/game/${gameRealName}`);
+      $('.game-image-thumbnail').attr('src', gameImage);
+      $('.game-label-state').replaceWith('<i class="fas fa-check game-label-state" style="color:green;"></i>');
+      $('.submitInfo').prop('disabled', false);
+      
+      fetch(`https://api.twitch.tv/helix/streams?game_id=${gameID}&first=100`, settings)
+        .then(res => res.json())
+        .then(data => {
+          let gameViewers = 0;
+          for (let _ in data.data) {
+            gameViewers = gameViewers + data.data[_].viewer_count;
+          }
+          return $('.game-info-container').html(`<span class="fas fa-eye">${gameViewers}</span>`);
+        })
+        .catch(err => console.error(err))
+    })
+    .catch(err => {
+      $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
+      $('.game-image-thumbnail').attr('src', "https://risibank.fr/cache/stickers/d1097/109776-full.png");
+      $('.submitInfo').prop('disabled', true);
+    })
 }
 
 //function updateStreamInfo(status, game, suffix, separator) {
@@ -680,8 +693,7 @@ function getEvents() {
   $('.options-item-streamElementsInfo').css('border', '1px green solid');
   
   function parseJwt (SEJWTToken) {
-    const base64Url = SEJWTToken.split('.')[1];
-    let base64 = base64Url.replace('-', '+').replace('_', '/');
+    const base64 = SEJWTToken.split('.')[1].replace('-', '+').replace('_', '/');
     return JSON.parse(window.atob(base64));
   };
 
@@ -690,8 +702,8 @@ function getEvents() {
   const SEChannelID = decodedJWT.channel;
 
   // Credits to LX from SE team
-  let url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow", "tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
-  let token = {
+  const url = `https://api.streamelements.com/kappa/v2/activities/${SEChannelID}?types=["follow", "tip", "host", "subscriber", "cheer", "raid"]&limit=15`;
+  const token = {
     headers: {
       'Host' : 'api.streamelements.com',
       'Authorization' : 'Bearer ' + SEJWTToken
@@ -704,44 +716,45 @@ function getEvents() {
     .then(data => {
       const results = data.length;
 
-      if (results != 0) {
-        $('.defaultEvent').remove();
-        for (let i=0, len=results; i < len; i++) {
-          const eventAvatar = data[i].data.avatar;
-          //TODO : Addd symbol for partners + add symbol if on stream
-          const eventAuthorType = "";
-          let eventAuthorOnStream = "";
-          const eventAuthor = data[i].data.username;
-          const eventDate = new Date(Date.now()) - new Date(Date.parse(data[i].createdAt));
-          const eventAge = timeConvertion(eventDate);
-          let eventType = data[i].type;
-          switch (eventType) {
-            case 'tip':
-              const amount = data[i].data.amount;
-              const currency = data[i].data.currency;
-              eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;  
-              break;
-            case 'subscriber' :
-              const subAmount = data[i].data.amount;
-              let tier = data[i].data.tier;
-              if (tier == "1000")  { tier = "T1"    }
-              if (tier == "2000")  { tier = "T2"    }
-              if (tier == "3000")  { tier = "T3"    }
-              if (tier == "prime") { tier = "Prime" }
-              eventType = `<i class="fas fa-star"></i> ${tier} (x${subAmount})`;
-              break;
-            case 'host':
-            case 'raid':
-              const viewersAmount = data[i].data.amount;
-              eventType = `${eventType} <i class="far fa-eye"></i> ${viewersAmount}`;
-              break;
-            default:
-              break;
-          }
-          const message = data[i].data.message;
-          const eventID = data[i]._id;
-          addStreamEvent(eventAvatar, eventAuthor, eventAge, eventType, eventID, message);
+      if (results == 0) return;
+
+      $('.defaultEvent').remove();
+
+      for (let i=0, len=results; i < len; i++) {
+        const eventAvatar = data[i].data.avatar;
+        //TODO : Addd symbol for partners + add symbol if on stream
+        const eventAuthor = data[i].data.username;
+        const eventDate = new Date(Date.now()) - new Date(Date.parse(data[i].createdAt));
+        const eventAge = timeConvertion(eventDate);
+        let eventType = data[i].type;
+        
+        switch (eventType) {
+          case 'tip':
+            const amount = data[i].data.amount;
+            const currency = data[i].data.currency;
+            eventType = `<i class="fas fa-money-bill-wave-alt"></i> ${amount} ${currency}`;  
+            break;
+          case 'subscriber' :
+            const subAmount = data[i].data.amount;
+            let tier = data[i].data.tier;
+            switch (tier) {
+              case '1000':  tier = 'T1';    break;
+              case '2000':  tier = 'T2';    break;
+              case '3000':  tier = 'T3';    break;
+              case 'prime': tier = 'Prime'; break;
+            }
+            eventType = `<i class="fas fa-star"></i> ${tier} (x${subAmount})`;
+            break;
+          case 'host':
+          case 'raid':
+            const viewersAmount = data[i].data.amount;
+            eventType = `${eventType} <i class="far fa-eye"></i> ${viewersAmount}`;
+            break;
         }
+        
+        const message = data[i].data.message;
+        const eventID = data[i]._id;
+        addStreamEvent(eventAvatar, eventAuthor, eventAge, eventType, eventID, message); 
       }
     })
     .catch(err => console.error(err))
@@ -749,7 +762,8 @@ function getEvents() {
 
 function createDiscord() {
   const discordID = $('.options-item-discordInfo').val();
-  if (discordID.length < 1) { return; }
+  
+  if (discordID.length < 1) return;
 
   const centerViewHeight = $('.center').height();
 
@@ -758,13 +772,19 @@ function createDiscord() {
   $('.top').append(`<div class="discord"><i class="fab fa-discord" style="font-size:1.5em;vertical-align:middle;"></i></div>`);
   
   $('.discord').append(`
-    <iframe src="https://discordapp.com/widget?id=${discordID}&theme=dark" width="350" height="${centerViewHeight}" allowtransparency="true" frameborder="0"></iframe>
+    <iframe src="https://discordapp.com/widget?id=${discordID}&theme=dark" 
+      width="350" 
+      height="${centerViewHeight}" 
+      allowtransparency="true" 
+      frameborder="0">
+    </iframe>
   `);
   
   $('.discord').hover(() => {
     $(".discord iframe").toggle();
   });
 }
+
 function createVideo() {
   $('.center').append(`<div class="module video"></div>`);
   
@@ -841,6 +861,7 @@ function createClips() {
     console.error(err);
   }
 }
+
 function createEvents() {
   modules.twitchEvents = true;
   $('.center').append(`
@@ -864,6 +885,7 @@ function createEvents() {
     console.error(err);
   }
 }
+
 function createChat() {
   $('.center').append(`<div class="module chat"></div>`);
   
@@ -875,79 +897,97 @@ function createChat() {
     console.error(err);
   }
 }
+
 function createViews() {
   modules.twitchViews = true;
   $('.bottom').append(`<div class="views"></div>`);
   getViews();
 }
+
 function createUptime() {
   modules.twitchUptime = true;
   $('.bottom').append(`<div class="uptime"></div>`);
 }
+
 function createViewers() {
   modules.twitchViewers = true;
   $('.bottom').append(`<div class="viewers"></div>`);
   getViewers();
 }
+
 function createFollowers() {
   modules.twitchFollowers = true;
   $('.bottom').append(`<div class="followers"></div>`);
   getFollowers();
 }
+
 function createSubscribers() {
   modules.twitchSubscribers = true;
   $('.bottom').append(`<div class="subscribers"></div>`);
   getSubscribers();
 }
+
 function createTranscoding() {
   modules.twitchTranscoding = true;
   $('.top').append(`<div class="alerts"></div>`);
   getTranscoding();
 }
-function createVibrations() {
-  //TODO finish to implement vibration
+
+function createVibrations(time) {
+  if (!document.cookie.includes("Vibrations=true")) return;
+  navigator.vibrate(time);
 }
 
 function removeSongPlayer() {
   $('.songPlayer').remove();
 }
+
 function removeVideo() {
   modules.twitchVideo = false;
   $('.video').remove();
 }
+
 function removeClips() {
   modules.twitchClips = false;
   $('.clips').remove();
 }
+
 function removeEvents() {
   eventList = [];
   modules.twitchEvents = false;
   $('.events').remove();
 }
+
 function removeChat() {
   modules.twitchChat = false;
   $('.chat').remove();
 }
+
 function removeUptime() {
   modules.twitchUptime = false;
   $('.uptime').remove();
 }
+
 function removeViews() {
   modules.twitchViews = false;
   $('.views').remove();
 }
+
 function removeViewers() {
   modules.twitchViewers = false;
   $('.viewers').remove();
 }
+
 function removeFollowers() {
   modules.twitchFollowers = false;
   $('.followers').remove();
 }
+
 function removeSubscribers() {
   modules.twitchSubscribers = false;
   $('.subscribers').remove();
 }
+
 function removeTranscoding() {
   modules.twitchTranscoding = false;
   $('.alerts').remove();
@@ -971,15 +1011,16 @@ function welcome() {
   $('.streamTitle').remove();
   $('.streamGame').remove();
 
-  $('.center').append(`<div class="welcome" 
-  style="
-  position: absolute;
-  top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  border-right: .20em solid red;
-  background: #2c2c2c;
-  letter-spacing: .15em;
-  "></div>`)
+  $('.center').append(`
+    <div class="welcome" 
+    style="
+    position: absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    border-right: .20em solid red;
+    background: #2c2c2c;
+    letter-spacing: .15em;
+    "></div>`);
   $('.welcome').append(`<h1 style="color:white;">Hey <span style="color:red;">${displayName}</span>, welcome to BetterStreamerDashboard aka BSD ! Let's customize your dashboard !</h1>`);
   $('.welcome').append(`<button class="startButton" style="width: 8em; height: 3em; border: none; border-radius: 12px; font-weight: 800; font-size: 1em; color:white; background: red;">Start</button>`);
   $('.startButton').click(() => {
