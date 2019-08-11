@@ -564,6 +564,8 @@ function getTitleAndGame() {
       fetch(`https://decapi.me/twitch/game/${displayName}`)
       .then(res => res.text())
       .then(game => {
+        if (game == 'generic.not_set') game = "";
+
         const img = '<a class="gameInfoLink" href="" target="_blank"><i class="fas fa-gamepad"></i></a>';
         $('.streamGame').replaceWith(`<div class="streamGame">${img} ${game} <i class="fas fa-pen edit"></i></div>`);
         $('.gameInfoLink').attr('href', `https://www.twitch.tv/directory/game/${game}`);
@@ -585,6 +587,15 @@ function getTitleAndGame() {
 async function getGameInfos() {
   const loadingGif = "https://i.redd.it/ounq1mw5kdxy.gif";
   const currentGame = $('.gameLabel').val();
+
+  if (currentGame.length <= 1) {
+    // Wipe everything
+    $('.game-image-link').attr('href', '');
+    $('.game-image-thumbnail').attr('src', '');
+    $('.game-info-container').html('Info : You will be unlisted from games streamers results.');
+    $('.submitInfo').prop('disabled', false);
+    return;
+  }
   
   $('.game-label-state').replaceWith(`<i class="game-label-state"><img class="game-image-loading"src="${loadingGif}" height="16px" width="16px"></i>`);
   const settings = {
@@ -624,6 +635,7 @@ async function getGameInfos() {
     .catch(err => {
       $('.game-label-state').replaceWith('<i class="fas fa-exclamation-triangle game-label-state" style="color:red;"></i>');
       $('.game-image-thumbnail').attr('src', "https://risibank.fr/cache/stickers/d1097/109776-full.png");
+      $('.game-info-container').html('Info : Game not found.');
       $('.submitInfo').prop('disabled', true);
     })
 }
