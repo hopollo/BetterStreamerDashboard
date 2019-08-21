@@ -389,7 +389,7 @@ body {
   grid-area: authorLogo;
   border-radius: 5%;
   height: 100%;
-  width: auto;
+  width: 100%;
 }
 
 .center .event-author-name {
@@ -541,7 +541,7 @@ body {
     overflow-y: scroll;
   }
   .top, .userLogo {
-    height: 4vh;
+    height: 5vh;
   }
   .settings {
     width: 80px;
@@ -553,13 +553,11 @@ body {
     font-size: .7em;
   }
   .center {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
+    display: inline-block;
+    height: 93vh;
   }
   .center .modal-content {
+    margin: 40% 0%;
     width: 100vw;
   }
   .center .modal-content .options {
@@ -591,24 +589,17 @@ body {
     grid-area: optionnal;
   }
   .center .module {
-    -ms-flex-preferred-size: 100vw;
-        flex-basis: 100vw;
     height: 50%;
-  }
-  .center .module:last-child {
-    margin-bottom: 5px;
+    width: 100%;
   }
   .center .event-container {
     height: 16.66%;
-  }
-  .center .event-container .event-author-name, .center .event-container .event-author-type {
-    margin-left: 5px;
   }
   .bottom {
     height: 3vh;
     position: fixed;
     bottom: 0;
-    width: 100vw;
+    width: 100%;
   }
 }
 
@@ -638,12 +629,11 @@ body {
     -ms-grid-rows: 1fr;
         grid-template-rows: 1fr;
   }
-  .center .module {
-    height: 50%;
-    width: 100%;
-  }
   .center .chat, .center .events {
     height: 100%;
+  }
+  .center .event-container {
+    height: 16.66%;
   }
   .bottom {
     height: 4vh;
