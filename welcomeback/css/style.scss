@@ -284,14 +284,14 @@ body {
     grid-column-gap: 5px;
     grid-template-areas:
     "authorLogo authorName authorMessage"
-    "authorLogo authorType authorAge"
+    "authorLogo authorType authorAge";
   }
   
   .event-author-avatar {
     grid-area: authorLogo;
     border-radius: 5%;
     height: 100%;
-    width: auto;
+    width: 100%;
   }
   
   .event-author-name { grid-area: authorName; align-self: center; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
@@ -377,7 +377,7 @@ body {
   }
 
   .top, .userLogo {
-    height: 4vh;
+    height: 5vh;
   }
 
   .settings {
@@ -391,10 +391,11 @@ body {
   }
 
   .center {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline-block;
+    height: 93vh;
 
     .modal-content {
+      margin: 40% 0%;
       width: 100vw;
       
       .options {
@@ -422,20 +423,12 @@ body {
     }
 
     .module {
-      flex-basis: 100vw;
       height: 50%;
-    }
-
-    .module:last-child {
-        margin-bottom: 5px;
+      width: 100%;
     }
 
     .event-container {
       height: 16.66%;
-      
-      .event-author-name, .event-author-type {
-        margin-left: 5px;
-      }
     }
   }
 
@@ -443,7 +436,7 @@ body {
     height: 3vh;
     position: fixed;
     bottom: 0;
-    width: 100vw;
+    width: 100%;
   }
 }
 
@@ -474,13 +467,12 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(33.33vw, 1fr));
     grid-template-rows: 1fr;
 
-    .module {
-      height: 50%;
-      width: 100%;
-    }
-
     .chat, .events {
       height: 100%;
+    }
+
+    .event-container {
+        height: 16.66%;
     }
   }
 
